@@ -1,5 +1,4 @@
-#ifndef pins_h
-#define pins_h
+#pragma once
 
 #include "bits.h"
 
@@ -13,4 +12,10 @@
 #define setpin(port) _BS(_PORT(port), _PIN(port))
 #define clrpin(port) _BC(_PORT(port), _PIN(port))
 
+//////////////////////////////////////////
+
+#ifdef __AVR_ATmega8__
+#include "pins_atmega8.h"
+#else
+#error Unknown MCU
 #endif
