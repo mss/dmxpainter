@@ -1,5 +1,4 @@
-#ifndef _bits_h_
-#define _bits_h_
+#pragma once
 
 #include <inttypes.h>
 
@@ -19,5 +18,3 @@
 #define _BS(v, mask) (v |=  (mask))
 // Clear bits based on a mask
 #define _BC(v, mask) (v &= ~(mask))
-
-#endif

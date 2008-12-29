@@ -1,5 +1,5 @@
-#ifndef tlc_h
-#define tlc_h
+#pragma once
+
 
 #include <inttypes.h>
 
@@ -15,5 +15,3 @@ void tlc_start();
 
 int  tlc_update();
 int  tlc_busy();
-
-#endif
