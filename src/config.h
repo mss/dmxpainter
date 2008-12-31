@@ -10,3 +10,6 @@
 #define SCLK  PIN_15
 #define SIN   PIN_26
 #define VPRG  PIN_23
+
+#define DMX_PIN   PIN_INT0
+#define DMX_VECT  INT0_vect
