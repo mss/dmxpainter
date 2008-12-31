@@ -64,21 +64,38 @@ void tlc_init()
 
   /* All channels to zero */
   tlc_xlat();
-  
-  
 
+  /* Timer 2: GSCLK */
+  // Disable OC2, we need it for SPI
+  COM2 = 
+  // CTC mode
+  TCCR2 = _BV(WGM20) | _BV(WGM21) | _BV(WGM22);
+  // Top
+  OCR2  = 80
+  
+  
   /* Timer 1: XLAT, BLNK */
-/*  TCCR1A = _BV(COM1A0); // TODO
-  TCCR1B = _BV(WGM13); // TODO
-  OCR1A = 1;
-  OCR1B = 2;
-  ICR1 = 8192;*/
+  
+  // WGM: Waveform Generation Mode
+  // COM: Compare Output Mode
+  // p87
+  
+  
+//  
+  TCCR1B = _BV(WGM13);  // WGM 8: Phase & freq. correct PWM, counting to ICR1 (p93)
+  TCCR1A = _BV(COM1B1); // Output on PIN_OC1B, clear on match (p97)
+  
+  
+  
+//  OCR1A = 1;
+//  OCR1B = 2;
+//  ICR1 = 8192;
 
   /* Timer 2: GSCK */
-  /*TCCR2A = _BV(COM2B1) | _BV(WGM21) | _BV(WGM20);
-  TCCR2B = _BV(WGM22);
-  OCR2B = 0;
-  OCR2A = 3;*/
+  //TCCR2A = _BV(COM2B1) | _BV(WGM21) | _BV(WGM20);
+  //TCCR2B = _BV(WGM22);
+  //OCR2B = 0;
+  //OCR2A = 3;*/
 }
 
 void tlc_start()
@@ -152,31 +169,37 @@ void tlc_send_gs()
 }
 
 
-uint8_t _tlc_need_xlat = 0;
+uint8_t _tlc_busy = 0;
 
-int tlc_update()
+void tlc_update()
 {
-  // Wait for XLAT.
-  if (_tlc_need_xlat) return 0;
+  if (_tlc_busy) return;
 
-  //Always shift out DC first.
+  // Always shift out DC first.
   tlc_send_dc();
-  
+  tlc_xlat();
+
   // No extra SCLK needed, just shift out all GS data.
   tlc_send_gs();
-
-  // Enable XLAT timer TODO
-  _tlc_need_xlat = 1;
-  //enable_xlat_pulses();
-  //enable_xlat_interrupt();
-
-  return 1;
+  tlc_xlat();
 }
 
 int tlc_busy()
 {
-  return _tlc_need_xlat;
+  return _tlc_busy;
 }
 
 /////////////////////////////////////////
 
+void tlc_update_done()
+{
+  _tlc_busy = 0;
+}
+
+void 
+
+/////////////////////////////////////////
+
+
+
+////////////////////////////////////////

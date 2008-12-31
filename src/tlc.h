@@ -13,5 +13,5 @@
 void tlc_init();
 void tlc_start();
 
-int  tlc_update();
+void tlc_update();
 int  tlc_busy();
