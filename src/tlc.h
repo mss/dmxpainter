@@ -15,3 +15,7 @@ void tlc_start();
 
 void tlc_update();
 int  tlc_busy();
+
+void tlc_start_gscycle();
+void tlc_start_gscycle_timeout();
+void tlc_stop_gscycle();

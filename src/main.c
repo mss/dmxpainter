@@ -4,7 +4,6 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <avr/sleep.h>
 
 //#include <util/atomic.h>
 
@@ -21,12 +20,28 @@
 
 
 //////////////////////////////////////////
+// Interrupts
 
-//ISR(
+// TIMER0:  8-Bit: ms for DMX, timeouts
 
-ISR(DMX_VECT)
+// TIMER1: 16-Bit: GSCLK
+ISR(TIMER1_COMPA_vect)
 {
-  dmx_int_trigger();
+  tlc_start_gscycle_timeout();
+}
+
+// TIMER2:  8-Bit: GS-Refresh-Timer
+ISR(TIMER2_COMP_vect)
+{
+  tlc_stop_gscycle();
+}
+
+
+
+// INT0:  Etxernal int, DMX sync
+ISR(INT0_vect)
+{
+  //dmx_int_trigger();
 }
 
 //////////////////////////////////////////

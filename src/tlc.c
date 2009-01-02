@@ -65,37 +65,24 @@ void tlc_init()
   /* All channels to zero */
   tlc_xlat();
 
-  /* Timer 2: GSCLK */
-  // Disable OC2, we need it for SPI
-  COM2 = 
-  // CTC mode
-  TCCR2 = _BV(WGM20) | _BV(WGM21) | _BV(WGM22);
-  // Top
-  OCR2  = 80
-  
-  
-  /* Timer 1: XLAT, BLNK */
-  
-  // WGM: Waveform Generation Mode
-  // COM: Compare Output Mode
-  // p87
-  
-  
-//  
-  TCCR1B = _BV(WGM13);  // WGM 8: Phase & freq. correct PWM, counting to ICR1 (p93)
-  TCCR1A = _BV(COM1B1); // Output on PIN_OC1B, clear on match (p97)
-  
-  
-  
-//  OCR1A = 1;
-//  OCR1B = 2;
-//  ICR1 = 8192;
+  /* Timer 2: Refresh-Timer */
+  // * AS2 = 0: Use IO-clock (16 MHz) for base frequency (p119)
+  // * Mode: Normal mode, no PWM, count upwards (WGM21:0 = 00) (p117)
+  // * Disable Output on OC2, needed for SPI (COM21:0 = 00) (p117)
+  // * Prescaler: 1024 (CS22:0 = 111) => 15625 Hz
+  TCCR2 = _BV(CS22) | _BV(CS21) | _BV(CS20);
+  // To get a 100 Hz clock we need to count 157 times (~ 99.5 Hz).
+  OCR2  = 156;
 
-  /* Timer 2: GSCK */
-  //TCCR2A = _BV(COM2B1) | _BV(WGM21) | _BV(WGM20);
-  //TCCR2B = _BV(WGM22);
-  //OCR2B = 0;
-  //OCR2A = 3;*/
+  /* Timer 1: GSCLK-Timer */
+  // * WGM1 = 1110: Fast PWM, TOP at ICR1
+  // * COM1A = 10: Set at 0, clear at Compare Match)
+  TCCR1B = _BV(WGM13) | _BV(WGM12);
+  TCCR1A = _BV(WGM11) | _BV(COM1A1);
+  // Shortest duty cycle possible.
+  OCR1A = 1;
+  // We need about 39 clocks to get 4096 cycles at 100 Hz.
+  ICR1 = 39;
 }
 
 void tlc_start()
@@ -107,9 +94,34 @@ void tlc_start()
 
 /////////////////////////////////////////
 
+void tlc_start_gscycle()
+{
+  // Sync with next GSCLK.
+  _BS(TIMSK, OCIE1A);
+}
+
+void tlc_start_gscycle_timeout()
+{
+  // Disable this interrupt.
+  _BC(TIMSK, OCIE1A);
+
+  // Restart timer.
+  TCNT2 = 0;
+  // Enable Compare Match Interrupt
+  _BS(TIMSK, OCIE2);
+}
+
+void tlc_stop_gscycle()
+{
+  // TODO: stop timer2, stop timer1
+  // TODO: blank
+  // TODO: next data
+}
+
+/////////////////////////////////////////
+
 void shift8(uint8_t byte)
 {
-  volatile uint8_t temp = byte;
   for (uint8_t bit = _B(1, 0, 0, 0, 0, 0, 0, 0); bit; bit >>= 1) {
 	if (bit & byte) {
       setpin(SIN);
@@ -196,10 +208,4 @@ void tlc_update_done()
   _tlc_busy = 0;
 }
 
-void 
-
 /////////////////////////////////////////
-
-
-
-////////////////////////////////////////
