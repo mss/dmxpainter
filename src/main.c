@@ -33,53 +33,23 @@ ISR(DMX_VECT)
 
 void main_init()
 {
-  /*ATOMIC_BLOCK(ATOMIC_FORCEON)*/ cli(); {
-    set_sleep_mode(SLEEP_MODE_IDLE);
-
-    sched_init();
-
-    dmx_init();
-
-    tlc_init();
-    tlc_start();
-  } sei();
-}
-
-void main_loop()
-{
-  sched_func_t func;
-  int resched;
-  while (1) {
-    // Be atomic.
-    cli();
-
-    // Peek at scheduler queue for next call.
-    while (sched_get(&func)) {
-      // Got something, enable interrupts, disable sleep mode.
-      sei();
-      sleep_disable();
-
-      // Call the queued function.
-      resched = func();
-
-      // Be atomic again.
-      cli();
-
-      // If the call wasn't successful, reschedule.
-      if (resched)
-        sched_put(func);
-    }
-
-    // Wait for next interrupt.
-    sleep_enable();
-    sei();
-    sleep_cpu();
-  }
+  /*ATOMIC_BLOCK(ATOMIC_FORCEON)*/ 
 }
 
 int main(void)
 {
-  main_init();
-  main_loop();
+  cli();
+
+  sched_init();
+
+  dmx_init();
+  tlc_init();
+
+  sei();
+  // Start TLC
+  tlc_start();
+
+  // Start scheduler.
+  sched_loop();
   return 0;
 }
