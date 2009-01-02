@@ -14,7 +14,7 @@
 
 #include "pins.h"
 
-#include "shed.h"
+#include "sched.h"
 #include "dmx.h"
 #include "tlc.h"
 #include "sd.h"
