@@ -51,11 +51,6 @@ ISR(INT0_vect)
 
 //////////////////////////////////////////
 
-void main_init()
-{
-  /*ATOMIC_BLOCK(ATOMIC_FORCEON)*/ 
-}
-
 int main(void)
 {
   cli();
