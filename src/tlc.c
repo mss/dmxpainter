@@ -7,6 +7,7 @@
 #include "mcu.h"
 #include "pins.h"
 
+#include "sched.h"
 #include "buffer.h"
 
 /////////////////////////////////////////
@@ -43,34 +44,55 @@ inline void set_blnk_off(void)
   pin_off(PIN_TLC_BLNK);
 }
 
+inline void set_vprg_gs_mode(void)
+{
+  pin_off(PIN_TLC_VPRG);
+}
+
+inline void set_vprg_dc_mode(void)
+{
+  pin_on(PIN_TLC_VPRG);
+}
+
+/////////////////////////////////////////
+
+uint8_t g_data_done;
+sched_res_t wait_for_data(void)
+{
+  if (!g_data_done) return SCHED_RE;
+  tlc_start_gscycle();
+  return SCHED_OK;
+}
+
 /////////////////////////////////////////
 
 void tlc_init(void)
 {
-  // Keep blank high until the timer start.
-  pin_out(PIN_TLC_BLNK);
-  pin_on(PIN_TLC_BLNK);
+  // All these pins write to the painter.
+  pin_out_off(PIN_TLC_GSCK);
+  pin_out_off(PIN_TLC_BLNK);
+  pin_out_off(PIN_TLC_VPRG);
+  pin_out_off(PIN_TLC_XLAT);
+  pin_out_off(PIN_TLC_SCLK);
+  pin_out_off(PIN_TLC_SIN);
 
-  // Initialize in GS mode.
-  pin_out(PIN_TLC_VPRG);
-  pin_off(PIN_TLC_VPRG);
+  // Initialize blanked (ie. LEDs off).
+  set_blnk_on();
 
-  // No latch for now.
-  pin_out(PIN_TLC_XLAT);
-  pin_off(PIN_TLC_XLAT);
-
-  // No clock yet as well.
-  pin_out(PIN_TLC_SCLK);
-  pin_off(PIN_TLC_SCLK);
-
-  // And no data.
-  pin_out(PIN_TLC_SIN);
-  pin_off(PIN_TLC_SIN);
-  pin_out(PIN_TLC_GSCK);
-  pin_off(PIN_TLC_GSCK);
-
-  /* All channels to zero */
-  clock_xlat();
+  // Timer 1 is for our GSCLK:  We refresh with a GS cycle of
+  // about 100 Hz (cf. Timer 2), for each full cycle we need to
+  // clock the PWM 4096 times.
+  // Disable output for now.
+  mcu_pin_timer2_ocm_disable();
+  // Shortest duty cycle possible.
+  mcu_set_timer1_ocma(1);
+  // We need about 39 clocks to get 4096 cycles at 100 Hz.
+  mcu_set_timer1_ic(39);
+  // * CS1 = 0001:  No prescaler. (p100)
+  // * WGM1 = 1110: Fast PWM, TOP at ICR1
+  // * COM1A = 10: Set at 0, clear at Compare Match)
+  TCCR1B = _BV(CS10) | _BV(WGM13) | _BV(WGM12);
+  TCCR1A = _BV(WGM11) | _BV(COM1A1);
 
   /* Timer 2: Refresh-Timer */
   // * AS2 = 0: Use IO-clock (16 MHz) for base frequency (p119)
@@ -81,49 +103,51 @@ void tlc_init(void)
   // To get a 100 Hz clock we need to count 157 times (~ 99.5 Hz).
   mcu_set_timer1_ic(156);
 
-  /* Timer 1: GSCLK-Timer */
-  // * WGM1 = 1110: Fast PWM, TOP at ICR1
-  // * COM1A = 10: Set at 0, clear at Compare Match)
-  TCCR1B = _BV(WGM13) | _BV(WGM12);
-  TCCR1A = _BV(WGM11) | _BV(COM1A1);
-  // Shortest duty cycle possible.
-  mcu_set_timer1_ocma(1);
-  // We need about 39 clocks to get 4096 cycles at 100 Hz.
-  mcu_set_timer1_ic(39);
+  // Wait for first DMX packet.
+  sched_put(&wait_for_data);
 }
 
 void tlc_start(void)
 {
-/* Start */
-//  _BS(TCCR1B, CS10);
-//  _BS(TCCR2B, CS20);
+  g_data_done = 1;
 }
 
 /////////////////////////////////////////
 
 void tlc_start_gscycle(void)
 {
-  // Sync with next GSCLK.
+  // Start counter with next GS pulse.
   mcu_int_timer1_ocma_enable();
 }
 
 void tlc_start_gscycle_timeout(void)
 {
-  // Disable this interrupt.
+  // First, disable this interrupt.
   mcu_int_timer1_ocma_disable();
 
-  // Restart timer.
+  // Enable PWM output.
+  mcu_pin_timer1_ocma_enable();
+
+  // Restart and enable timeout timer.
   mcu_set_timer2_cnt(0);
-  
-  // Enable Compare Match Interrupt
   mcu_int_timer2_ocm_enable();
+
+  // Switch off BLNK.
+  set_blnk_off();
 }
 
 void tlc_stop_gscycle(void)
 {
-  // TODO: stop timer2, stop timer1
-  // TODO: blank
+  // Go into BLNK mode (switch off LEDs and reset GSCLK counter)
+  set_blnk_on();
+
+  // Disable GS cycle timeout timer.
+  mcu_int_timer2_ocm_disable();
+
+  // Wait for next DMX packet.
+  sched_put(&wait_for_data);
   // TODO: next data
+  
 }
 
 /////////////////////////////////////////

@@ -4,11 +4,14 @@
 
 //////////////////////////////////////////
 
-#define pin_in(pin)     _BC(pin_DDR(pin), pin_PIN(pin))
-#define pin_out(pin)    _BS(pin_DDR(pin), pin_PIN(pin))
+#define pin_on(pin)      _BS(pin_PRT(pin), pin_PIN(pin))
+#define pin_off(pin)     _BC(pin_PRT(pin), pin_PIN(pin))
 
-#define pin_on(pin)     _BS(pin_PRT(pin), pin_PIN(pin))
-#define pin_off(pin)    _BC(pin_PRT(pin), pin_PIN(pin))
+#define pin_in(pin)      _BC(pin_DDR(pin), pin_PIN(pin))
+#define pin_out(pin)     _BS(pin_DDR(pin), pin_PIN(pin))
+
+#define pin_out_on(pin)  _BS(pin_DDR(pin), pin_PIN(pin)); _BS(pin_PRT(pin), pin_PIN(pin))
+#define pin_out_off(pin) _BS(pin_DDR(pin), pin_PIN(pin)); _BS(pin_PRT(pin), pin_PIN(pin))
 
 //////////////////////////////////////////
 

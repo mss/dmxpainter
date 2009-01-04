@@ -54,14 +54,18 @@ ISR(INT0_vect)
 int main(void)
 {
   cli();
-
+  
+  // Initialize scheduler.
   sched_init();
 
+  // Initialize peripherals.
   dmx_init();
   tlc_init();
 
   sei();
-  // Start TLC
+  // Start DMX
+  //dmx_start();
+  // not done yet, use dummy data
   tlc_start();
 
   // Start scheduler.
