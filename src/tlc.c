@@ -19,14 +19,14 @@
 /////////////////////////////////////////
 
 // XLAT pulse to apply data to internal register.
-void tlc_xlat()
+void tlc_xlat(void)
 {
   setpin(PIN_TLC_XLAT);
   clrpin(PIN_TLC_XLAT);
 }
 
 // SCLK pulse to clock in serial data from SIN.
-void tlc_sclk()
+void tlc_sclk(void)
 {
   setpin(PIN_TLC_SCLK);
   clrpin(PIN_TLC_SCLK);
@@ -34,7 +34,7 @@ void tlc_sclk()
 
 /////////////////////////////////////////
 
-void tlc_init()
+void tlc_init(void)
 {
   // Keep blank high until the timer start.
   pinout(PIN_TLC_BLNK);
@@ -81,7 +81,7 @@ void tlc_init()
   ICR1 = 39;
 }
 
-void tlc_start()
+void tlc_start(void)
 {
 /* Start */
 //  _BS(TCCR1B, CS10);
@@ -90,13 +90,13 @@ void tlc_start()
 
 /////////////////////////////////////////
 
-void tlc_start_gscycle()
+void tlc_start_gscycle(void)
 {
   // Sync with next GSCLK.
   _BS(TIMSK, OCIE1A);
 }
 
-void tlc_start_gscycle_timeout()
+void tlc_start_gscycle_timeout(void)
 {
   // Disable this interrupt.
   _BC(TIMSK, OCIE1A);
@@ -107,7 +107,7 @@ void tlc_start_gscycle_timeout()
   _BS(TIMSK, OCIE2);
 }
 
-void tlc_stop_gscycle()
+void tlc_stop_gscycle(void)
 {
   // TODO: stop timer2, stop timer1
   // TODO: blank
@@ -144,7 +144,7 @@ void shift12(uint8_t byte)
 
 /////////////////////////////////////////
 
-void tlc_send_dc()
+void tlc_send_dc(void)
 {
   
   for (int rgb = 2; rgb != -1; rgb--) {
@@ -161,7 +161,7 @@ void tlc_send_dc()
   }
 }
 
-void tlc_send_gs()
+void tlc_send_gs(void)
 {
   int16_t offset = N_TLC_CHANNELS - 1;
   while (1) {
@@ -179,7 +179,7 @@ void tlc_send_gs()
 
 uint8_t _tlc_busy = 0;
 
-void tlc_update()
+void tlc_update(void)
 {
   if (_tlc_busy) return;
 
@@ -192,14 +192,14 @@ void tlc_update()
   tlc_xlat();
 }
 
-int tlc_busy()
+int tlc_busy(void)
 {
   return _tlc_busy;
 }
 
 /////////////////////////////////////////
 
-void tlc_update_done()
+void tlc_update_done(void)
 {
   _tlc_busy = 0;
 }

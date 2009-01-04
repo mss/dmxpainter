@@ -41,5 +41,5 @@ void dmx_wait_disable()
 {
 }
 #else
-void dmx_init() {}
+void dmx_init(void) {}
 #endif
