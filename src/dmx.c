@@ -40,4 +40,6 @@ void dmx_wait_enable()
 void dmx_wait_disable()
 {
 }
+#else
+void dmx_init() {}
 #endif
