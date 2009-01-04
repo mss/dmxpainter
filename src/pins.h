@@ -22,6 +22,13 @@
 
 //////////////////////////////////////////
 
+#define pin_pin(pin)  pin_PIN_NUM(pin)
+#define pin_inr(pin)  pin_SFR_PIN(pin)
+#define pin_outr(pin) pin_SFR_PRT(pin)
+#define pin_ddr(pin)  pin_SFR_DDR(pin)
+
+//////////////////////////////////////////
+
 #define pin_PIN_NUM(port, pin) pin
 #define pin_PIN_VAL(port, pin) _BV(pin)
 #define pin_SFR_PIN(port, pin) PIN  ## port
