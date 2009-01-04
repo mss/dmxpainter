@@ -46,7 +46,7 @@ uint8_t sched_get(sched_func_t * func)
 }
 
 /////////////////////////////////////////
-
+//TODO: enqueue in front
 void sched_loop()
 {
   sched_func_t first;
