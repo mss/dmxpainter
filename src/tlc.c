@@ -4,6 +4,7 @@
 
 #include "config.h"
 
+#include "mcu.h"
 #include "pins.h"
 
 #include "buffer.h"
@@ -93,18 +94,19 @@ void tlc_start(void)
 void tlc_start_gscycle(void)
 {
   // Sync with next GSCLK.
-  _BS(TIMSK, OCIE1A);
+  mcu_int_timer1_ocma_enable();
 }
 
 void tlc_start_gscycle_timeout(void)
 {
   // Disable this interrupt.
-  _BC(TIMSK, OCIE1A);
+  mcu_int_timer1_ocma_disable();
 
   // Restart timer.
-  TCNT2 = 0;
+  mcu_set_timer2(0);
+  
   // Enable Compare Match Interrupt
-  _BS(TIMSK, OCIE2);
+  mcu_int_timer2_ocm_enable();
 }
 
 void tlc_stop_gscycle(void)
