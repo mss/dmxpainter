@@ -17,8 +17,6 @@
 
 #define BYTES_PER_CHANNEL ((CHANNELS_PER_TLC * BITS_PER_CHANNEL) / 8)
 
-uint16_t _tlc_gs_idx;
-
 
 /////////////////////////////////////////
 
