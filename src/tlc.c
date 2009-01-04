@@ -22,15 +22,15 @@
 // XLAT pulse to apply data to internal register.
 void tlc_xlat(void)
 {
-  setpin(PIN_TLC_XLAT);
-  clrpin(PIN_TLC_XLAT);
+  pin_on(PIN_TLC_XLAT);
+  pin_off(PIN_TLC_XLAT);
 }
 
 // SCLK pulse to clock in serial data from SIN.
 void tlc_sclk(void)
 {
-  setpin(PIN_TLC_SCLK);
-  clrpin(PIN_TLC_SCLK);
+  pin_on(PIN_TLC_SCLK);
+  pin_off(PIN_TLC_SCLK);
 }
 
 /////////////////////////////////////////
@@ -38,26 +38,26 @@ void tlc_sclk(void)
 void tlc_init(void)
 {
   // Keep blank high until the timer start.
-  pinout(PIN_TLC_BLNK);
-  setpin(PIN_TLC_BLNK);
+  pin_out(PIN_TLC_BLNK);
+  pin_on(PIN_TLC_BLNK);
 
   // Initialize in GS mode.
-  pinout(PIN_TLC_VPRG);
-  clrpin(PIN_TLC_VPRG);
+  pin_out(PIN_TLC_VPRG);
+  pin_off(PIN_TLC_VPRG);
 
   // No latch for now.
-  pinout(PIN_TLC_XLAT);
-  clrpin(PIN_TLC_XLAT);
+  pin_out(PIN_TLC_XLAT);
+  pin_off(PIN_TLC_XLAT);
 
   // No clock yet as well.
-  pinout(PIN_TLC_SCLK);
-  clrpin(PIN_TLC_SCLK);
+  pin_out(PIN_TLC_SCLK);
+  pin_off(PIN_TLC_SCLK);
 
   // And no data.
-  pinout(PIN_TLC_SIN);
-  clrpin(PIN_TLC_SIN);
-  pinout(PIN_TLC_GSCK);
-  clrpin(PIN_TLC_GSCK);
+  pin_out(PIN_TLC_SIN);
+  pin_off(PIN_TLC_SIN);
+  pin_out(PIN_TLC_GSCK);
+  pin_off(PIN_TLC_GSCK);
 
   /* All channels to zero */
   tlc_xlat();
@@ -122,12 +122,12 @@ void shift8(uint8_t byte)
 {
   for (uint8_t bit = _B(1, 0, 0, 0, 0, 0, 0, 0); bit; bit >>= 1) {
 	if (bit & byte) {
-      setpin(PIN_TLC_SIN);
+      pin_on(PIN_TLC_SIN);
     } else {
-      clrpin(PIN_TLC_SIN);
+      pin_off(PIN_TLC_SIN);
     }
-    setpin(PIN_TLC_SCLK);
-    clrpin(PIN_TLC_SCLK);
+    pin_on(PIN_TLC_SCLK);
+    pin_off(PIN_TLC_SCLK);
   }
 }
 
@@ -137,10 +137,10 @@ void shift12(uint8_t byte)
   shift8(byte);
 
   // Plus 4 zero bits (makes a shift by 4).
-  clrpin(PIN_TLC_SIN);
+  pin_off(PIN_TLC_SIN);
   for (uint8_t bit = _B(0, 0, 0, 0, 1, 0, 0, 0); bit; bit >>= 1) {
-    setpin(PIN_TLC_SCLK);
-    clrpin(PIN_TLC_SCLK);
+    pin_on(PIN_TLC_SCLK);
+    pin_off(PIN_TLC_SCLK);
   }
 }
 
