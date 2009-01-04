@@ -6,8 +6,8 @@
 
 //////////////////////////////////////////
 
-#define pin_is_set(pin)  bit_is_set(pin_SFR_PIN(pin), pin_PIN_NUM(pin))
-#define pin_get(pin)     ((pin_SFR_PIN(pin) >> pin_PIN_NUM(pin) & 1)
+#define pin_is_set(pin)  (bit_is_set(pin_SFR_PIN(pin), pin_PIN_NUM(pin)))
+#define pin_get(pin)     (pin_is_set(pin) >> pin_PIN_NUM(pin))
 
 #define pin_on(pin)      _BS(pin_SFR_PRT(pin), pin_PIN_VAL(pin))
 #define pin_off(pin)     _BC(pin_SFR_PRT(pin), pin_PIN_VAL(pin))
