@@ -1,3 +1,4 @@
+#if 0
 #include "dmx.h"
 
 #include "config.h"
@@ -39,3 +40,4 @@ void dmx_wait_enable()
 void dmx_wait_disable()
 {
 }
+#endif
