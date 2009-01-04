@@ -42,3 +42,20 @@ char dc_buffer[3]   = {
   0xCD, // G
   0xEF  // B
 };
+
+
+sched_res_t buffer_test_next(void)
+{
+  if (gs_buffer[0] != 0) {
+    gs_buffer[0]--;
+  } else {
+    if (gs_buffer[1] != 0) {
+      gs_buffer[1]--;
+    } else {
+      if (gs_buffer[2] != 0) {
+        gs_buffer[2]--;
+      } else {
+        gs_buffer[0] = 0xFF;
+  } } }
+  tlc_start();
+}
