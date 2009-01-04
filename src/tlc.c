@@ -56,10 +56,13 @@ inline void set_vprg_dc_mode(void)
 
 /////////////////////////////////////////
 
+void tlc_update(void);
+
 uint8_t g_data_done;
 sched_res_t wait_for_data(void)
 {
   if (!g_data_done) return SCHED_RE;
+  tlc_update();
   tlc_start_gscycle();
   return SCHED_OK;
 }
@@ -211,13 +214,8 @@ void tlc_send_gs(void)
   }
 }
 
-
-uint8_t _tlc_busy = 0;
-
 void tlc_update(void)
 {
-  if (_tlc_busy) return;
-
   // Always shift out DC first.
   tlc_send_dc();
   clock_xlat();
@@ -225,18 +223,6 @@ void tlc_update(void)
   // No extra SCLK needed, just shift out all GS data.
   tlc_send_gs();
   clock_xlat();
-}
-
-int tlc_busy(void)
-{
-  return _tlc_busy;
-}
-
-/////////////////////////////////////////
-
-void tlc_update_done(void)
-{
-  _tlc_busy = 0;
 }
 
 /////////////////////////////////////////
