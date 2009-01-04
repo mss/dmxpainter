@@ -4,11 +4,11 @@
 
 //////////////////////////////////////////
 
-#define pin_in(port)     _BC(pin_DDR(port), pin_PIN(port))
-#define pin_out(port)    _BS(pin_DDR(port), pin_PIN(port))
+#define pin_in(pin)     _BC(pin_DDR(pin), pin_PIN(pin))
+#define pin_out(pin)    _BS(pin_DDR(pin), pin_PIN(pin))
 
-#define pin_on(port)     _BS(pin_PRT(port), pin_PIN(port))
-#define pin_off(port)    _BC(pin_PRT(port), pin_PIN(port))
+#define pin_on(pin)     _BS(pin_PRT(pin), pin_PIN(pin))
+#define pin_off(pin)    _BC(pin_PRT(pin), pin_PIN(pin))
 
 //////////////////////////////////////////
 
