@@ -1,23 +1,32 @@
 #pragma once
 
+#include <avr/io.h>
+
 #include "bits.h"
 
 //////////////////////////////////////////
 
-#define pin_on(pin)      _BS(pin_PRT(pin), pin_PIN(pin))
-#define pin_off(pin)     _BC(pin_PRT(pin), pin_PIN(pin))
+#define pin_is_set(pin)  bit_is_set(pin_SFR_PIN(pin), pin_PIN_NUM(pin))
+#define pin_get(pin)     ((pin_SFR_PIN(pin) & pin_PIN_VAL(pin)) >> pin_NUM(pin))
 
-#define pin_in(pin)      _BC(pin_DDR(pin), pin_PIN(pin))
-#define pin_out(pin)     _BS(pin_DDR(pin), pin_PIN(pin))
+#define pin_on(pin)      _BS(pin_SFR_PRT(pin), pin_VAL(pin))
+#define pin_off(pin)     _BC(pin_SFR_PRT(pin), pin_VAL(pin))
 
-#define pin_out_on(pin)  _BS(pin_DDR(pin), pin_PIN(pin)); _BS(pin_PRT(pin), pin_PIN(pin))
-#define pin_out_off(pin) _BS(pin_DDR(pin), pin_PIN(pin)); _BS(pin_PRT(pin), pin_PIN(pin))
+#define pin_in(pin)      _BC(pin_SFR_DDR(pin), pin_VAL(pin))
+#define pin_out(pin)     _BS(pin_SFR_DDR(pin), pin_VAL(pin))
+
+#define pin_out_on(pin)  _BS(pin_SFR_DDR(pin), pin_PIN_VAL(pin)); \
+                         _BS(pin_PIN_PRT(pin), pin_PIN_VAL(pin))
+#define pin_out_off(pin) _BS(pin_SFR_DDR(pin), pin_PIN_VAL(pin)); \
+                         _BC(pin_SFR_PRT(pin), pin_PIN_VAL(pin))
 
 //////////////////////////////////////////
 
-#define pin_PIN(port, pin) 1 << pin
-#define pin_PRT(port, pin) PORT ## port
-#define pin_DDR(port, pin) DDR  ## port
+#define pin_PIN_NUM(port, pin) pin
+#define pin_PIN_VAL(port, pin) _BV(pin)
+#define pin_SFR_PIN(port, pin) PIN  ## port
+#define pin_SFR_PRT(port, pin) PORT ## port
+#define pin_SFR_DDR(port, pin) DDR  ## port
 
 //////////////////////////////////////////
 
