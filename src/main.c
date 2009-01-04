@@ -27,7 +27,17 @@
 //////////////////////////////////////////
 // Interrupts
 
-// TIMER0:  8-Bit: ms for DMX, timeouts
+// INT0:  External int, DMX sync
+ISR(INT0_vect)
+{
+  dmx_int_edge();
+}
+
+// TIMER0:  8-Bit: 4 us for DMX, timeouts
+ISR(TIMER0_OVF_vect)
+{
+  dmx_count_frame();
+}
 
 // TIMER1: 16-Bit: GSCLK
 ISR(TIMER1_COMPA_vect)
@@ -41,13 +51,6 @@ ISR(TIMER2_COMP_vect)
   tlc_stop_gscycle();
 }
 
-
-
-// INT0:  Etxernal int, DMX sync
-ISR(INT0_vect)
-{
-  //dmx_int_trigger();
-}
 
 //////////////////////////////////////////
 
