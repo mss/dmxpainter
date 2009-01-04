@@ -19,6 +19,11 @@
 #include "sd.h"
 
 
+// http://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html
+#if __GNUC__ < 4
+#error GCC 4.x.x required!
+#endif
+
 //////////////////////////////////////////
 // Interrupts
 
