@@ -6,26 +6,26 @@
 
 //////////////////////////////////////////
 
-#define pin_is_set(pin)  (bit_is_set(pin_SFR_PIN(pin), pin_PIN_NUM(pin)))
-#define pin_get(pin)     (pin_is_set(pin) >> pin_PIN_NUM(pin))
+#define pin_is_set(pp)  (bit_is_set(pin_SFR_PIN(pp), pin_PIN_NUM(pp)))
+#define pin_get(pp)     (pin_is_set(pp) >> pin_PIN_NUM(pp))
 
-#define pin_on(pin)      _BS(pin_SFR_PRT(pin), pin_PIN_VAL(pin))
-#define pin_off(pin)     _BC(pin_SFR_PRT(pin), pin_PIN_VAL(pin))
+#define pin_on(pp)      _BS(pin_SFR_PRT(pp), pin_PIN_VAL(pp))
+#define pin_off(pp)     _BC(pin_SFR_PRT(pp), pin_PIN_VAL(pp))
 
-#define pin_in(pin)      _BC(pin_SFR_DDR(pin), pin_PIN_VAL(pin))
-#define pin_out(pin)     _BS(pin_SFR_DDR(pin), pin_PIN_VAL(pin))
+#define pin_in(pp)      _BC(pin_SFR_DDR(pp), pin_PIN_VAL(pp))
+#define pin_out(pp)     _BS(pin_SFR_DDR(pp), pin_PIN_VAL(pp))
 
-#define pin_out_on(pin)  _BS(pin_SFR_DDR(pin), pin_PIN_VAL(pin)); \
-                         _BS(pin_PIN_PRT(pin), pin_PIN_VAL(pin))
-#define pin_out_off(pin) _BS(pin_SFR_DDR(pin), pin_PIN_VAL(pin)); \
-                         _BC(pin_SFR_PRT(pin), pin_PIN_VAL(pin))
+#define pin_out_on(pp)  _BS(pin_SFR_DDR(pp), pin_PIN_VAL(pp)); \
+                        _BS(pin_PIN_PRT(pp), pin_PIN_VAL(pp))
+#define pin_out_off(pp) _BS(pin_SFR_DDR(pp), pin_PIN_VAL(pp)); \
+                        _BC(pin_SFR_PRT(pp), pin_PIN_VAL(pp))
 
 //////////////////////////////////////////
 
-#define pin_pin(pin)  pin_PIN_NUM(pin)
-#define pin_inr(pin)  pin_SFR_PIN(pin)
-#define pin_outr(pin) pin_SFR_PRT(pin)
-#define pin_ddr(pin)  pin_SFR_DDR(pin)
+#define pin_pin(pp)  pin_PIN_NUM(pp)
+#define pin_inr(pp)  pin_SFR_PIN(pp)
+#define pin_outr(pp) pin_SFR_PRT(pp)
+#define pin_ddr(pp)  pin_SFR_DDR(pp)
 
 //////////////////////////////////////////
 
