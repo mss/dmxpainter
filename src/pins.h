@@ -16,7 +16,7 @@
 #define pin_out(pp)     _BS(pin_SFR_DDR(pp), pin_PIN_VAL(pp))
 
 #define pin_out_on(pp)  _BS(pin_SFR_DDR(pp), pin_PIN_VAL(pp)); \
-                        _BS(pin_PIN_PRT(pp), pin_PIN_VAL(pp))
+                        _BS(pin_SFR_PRT(pp), pin_PIN_VAL(pp))
 #define pin_out_off(pp) _BS(pin_SFR_DDR(pp), pin_PIN_VAL(pp)); \
                         _BC(pin_SFR_PRT(pp), pin_PIN_VAL(pp))
 
