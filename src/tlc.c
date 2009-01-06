@@ -83,7 +83,7 @@ void tlc_init(void)
   pin_out_off(PIN_TLC_BLNK);
 
   // Initialize blanked (ie. LEDs off).
-  //set_blnk_on();
+  set_blnk_on();
 
   // Timer 1 is for our GSCLK:  We refresh with a GS cycle of
   // about 100 Hz (cf. Timer 2), for each full cycle we need to
@@ -137,7 +137,7 @@ void tlc_start_gscycle_timeout(void)
 
   // Restart and enable timeout timer.
   mcu_set_timer2_cnt(0);
-  mcu_int_timer2_ocm_enable();
+  //mcu_int_timer2_ocm_enable();
 
   // Switch off BLNK.
   //set_blnk_off();

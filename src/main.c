@@ -43,7 +43,7 @@ ISR(TIMER0_OVF_vect)
 // TIMER1: 16-Bit: GSCLK
 ISR(TIMER1_COMPA_vect)
 {
-  tlc_start_gscycle_timeout();
+  //tlc_start_gscycle_timeout();
 }
 
 
@@ -60,6 +60,8 @@ ISR(TIMER2_COMP_vect)
 
 int main(void)
 {
+  _BS(WDTCR, WDCE);
+  _BC(WDTCR, WDE);
   cli();
   
   // Initialize scheduler.
