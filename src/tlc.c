@@ -80,7 +80,7 @@ void tlc_init(void)
   pin_out_off(PIN_TLC_SIN);
 
   // Initialize blanked (ie. LEDs off).
-  pin_on(PIN_TLC_BLNK);//set_blnk_on();
+  set_blnk_on();
   while (1) {}
 
   // Timer 1 is for our GSCLK:  We refresh with a GS cycle of
