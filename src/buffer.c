@@ -44,18 +44,21 @@ char dc_buffer[3]   = {
 };
 
 
+#include "tlc.h"
+volatile uint8_t g_test_cnt = 0;
 sched_res_t buffer_test_next(void)
 {
-  if (gs_buffer[0] != 0) {
-    gs_buffer[0]--;
-  } else {
-    if (gs_buffer[1] != 0) {
-      gs_buffer[1]--;
-    } else {
-      if (gs_buffer[2] != 0) {
-        gs_buffer[2]--;
-      } else {
-        gs_buffer[0] = 0xFF;
-  } } }
+  uint8_t rgb =  0;
+  uint8_t cnt = -1;
+  if (g_test_cnt++ != 10) return SCHED_RE;
+  g_test_cnt = 0;
+
+  gs_buffer[rgb] += cnt;
+  if (gs_buffer[rgb] == 0) {
+    rgb = (rgb + 1) % 3;
+    if (rgb == 0) cnt *= -1;
+  }
+
   tlc_start();
+  return SCHED_RE;
 }
