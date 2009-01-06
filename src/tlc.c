@@ -21,14 +21,14 @@
 /////////////////////////////////////////
 
 // XLAT pulse to apply data to internal register.
-inline void clock_xlat(void)
+void clock_xlat(void)
 {
   pin_on(PIN_TLC_XLAT);
   pin_off(PIN_TLC_XLAT);
 }
 
 // SCLK pulse to clock in serial data from SIN.
-inline void clock_sclk(void)
+void clock_sclk(void)
 {
   pin_on(PIN_TLC_SCLK);
   pin_off(PIN_TLC_SCLK);
@@ -39,17 +39,17 @@ void set_blnk_on(void)
   pin_on(PIN_TLC_BLNK);
 }
 
-inline void set_blnk_off(void)
+void set_blnk_off(void)
 {
   pin_off(PIN_TLC_BLNK);
 }
 
-inline void set_vprg_gs_mode(void)
+void set_vprg_gs_mode(void)
 {
   pin_off(PIN_TLC_VPRG);
 }
 
-inline void set_vprg_dc_mode(void)
+void set_vprg_dc_mode(void)
 {
   pin_on(PIN_TLC_VPRG);
 }
@@ -71,30 +71,32 @@ sched_res_t wait_for_data(void)
 
 void tlc_init(void)
 {
+  // Initialize blanked (ie. LEDs off).
+  //set_blnk_on();
+
   // All these pins write to the painter.
   pin_out_off(PIN_TLC_GSCK);
-  pin_out_off(PIN_TLC_BLNK);
   pin_out_off(PIN_TLC_VPRG);
   pin_out_off(PIN_TLC_XLAT);
   pin_out_off(PIN_TLC_SCLK);
   pin_out_off(PIN_TLC_SIN);
+  pin_out_off(PIN_TLC_BLNK);
 
   // Initialize blanked (ie. LEDs off).
-  set_blnk_on();
-  while (1) {}
+  //set_blnk_on();
 
   // Timer 1 is for our GSCLK:  We refresh with a GS cycle of
   // about 100 Hz (cf. Timer 2), for each full cycle we need to
   // clock the PWM 4096 times.
   // Disable output for now.
-  mcu_pin_timer2_ocm_disable();
+  mcu_pin_timer1_ocma_disable();
   // Shortest duty cycle possible.
   mcu_set_timer1_ocma(1);
   // We need about 39 clocks to get 4096 cycles at 100 Hz.
   mcu_set_timer1_ic(39);
   // * CS1 = 0001:  No prescaler. (p100)
   // * WGM1 = 1110: Fast PWM, TOP at ICR1
-  // * COM1A = 10: Set at 0, clear at Compare Match)
+  // * COM1A = 10: Set at 0, clear at Output Compare Match)
   TCCR1B = _BV(CS10) | _BV(WGM13) | _BV(WGM12);
   TCCR1A = _BV(WGM11) | _BV(COM1A1);
 
@@ -122,6 +124,7 @@ void tlc_start_gscycle(void)
 {
   // Start counter with next GS pulse.
   mcu_int_timer1_ocma_enable();
+  set_blnk_on();
 }
 
 void tlc_start_gscycle_timeout(void)
@@ -137,7 +140,8 @@ void tlc_start_gscycle_timeout(void)
   mcu_int_timer2_ocm_enable();
 
   // Switch off BLNK.
-  set_blnk_off();
+  //set_blnk_off();
+  set_blnk_on();
 }
 
 void tlc_stop_gscycle(void)

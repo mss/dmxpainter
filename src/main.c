@@ -9,9 +9,7 @@
 
 #include "config.h"
 
-#include "bits.h"
-
-#include "pins.h"
+#include "mcu.h"
 
 #include "sched.h"
 #include "dmx.h"
@@ -39,11 +37,17 @@ ISR(TIMER0_OVF_vect)
 //  dmx_count_frame();
 }
 
+
+
+
 // TIMER1: 16-Bit: GSCLK
 ISR(TIMER1_COMPA_vect)
 {
   tlc_start_gscycle_timeout();
 }
+
+
+
 
 // TIMER2:  8-Bit: GS-Refresh-Timer
 ISR(TIMER2_COMP_vect)
