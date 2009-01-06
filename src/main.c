@@ -30,13 +30,13 @@
 // INT0:  External int, DMX sync
 ISR(INT0_vect)
 {
-  dmx_int_edge();
+//  dmx_int_edge();
 }
 
 // TIMER0:  8-Bit: 4 us for DMX, timeouts
 ISR(TIMER0_OVF_vect)
 {
-  dmx_count_frame();
+//  dmx_count_frame();
 }
 
 // TIMER1: 16-Bit: GSCLK

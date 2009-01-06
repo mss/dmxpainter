@@ -34,7 +34,7 @@ inline void clock_sclk(void)
   pin_off(PIN_TLC_SCLK);
 }
 
-inline void set_blnk_on(void)
+void set_blnk_on(void)
 {
   pin_on(PIN_TLC_BLNK);
 }
@@ -80,7 +80,8 @@ void tlc_init(void)
   pin_out_off(PIN_TLC_SIN);
 
   // Initialize blanked (ie. LEDs off).
-  set_blnk_on();
+  pin_on(PIN_TLC_BLNK);//set_blnk_on();
+  while (1) {}
 
   // Timer 1 is for our GSCLK:  We refresh with a GS cycle of
   // about 100 Hz (cf. Timer 2), for each full cycle we need to
