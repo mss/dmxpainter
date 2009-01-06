@@ -48,6 +48,7 @@ char dc_buffer[3]   = {
 volatile uint8_t g_test_cnt = 0;
 sched_res_t buffer_test_next(void)
 {
+#if 0
   uint8_t rgb =  0;
   uint8_t cnt = -1;
   if (g_test_cnt++ != 10) return SCHED_RE;
@@ -60,5 +61,6 @@ sched_res_t buffer_test_next(void)
   }
 
   tlc_start();
+#endif
   return SCHED_RE;
 }
