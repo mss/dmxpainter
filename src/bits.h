@@ -17,6 +17,6 @@
 // http://www.nongnu.org/avr-libc/user-manual/FAQ.html#faq_intpromote
 
 // Set bits based on a mask
-#define _BS(v, mask) (v |= (uint8_t) (mask))
+#define _BS(v, mask) (v |= (mask))
 // Clear bits based on a mask
-#define _BC(v, mask) (v &= (uint8_t)~(mask))
+#define _BC(v, mask) (v &= ~(mask))
