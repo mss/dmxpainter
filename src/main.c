@@ -25,6 +25,7 @@
 //////////////////////////////////////////
 // Interrupts
 
+#if 0
 // INT0:  External int, DMX sync
 ISR(INT0_vect)
 {
@@ -36,20 +37,20 @@ ISR(TIMER0_OVF_vect)
 {
 //  dmx_count_frame();
 }
-
-
+#endif
 
 
 // TIMER1: 16-Bit: GSCLK
 ISR(TIMER1_COMPA_vect)
 {
-  //tlc_start_gscycle_timeout();
+  tlc_start_gscycle_timeout();
 }
 
 
 
 
 // TIMER2:  8-Bit: GS-Refresh-Timer
+uint8_t g_t2_comp;
 ISR(TIMER2_COMP_vect)
 {
   tlc_stop_gscycle();
@@ -68,14 +69,14 @@ int main(void)
   sched_init();
 
   // Initialize peripherals.
-  dmx_init();
+  //dmx_init();
   tlc_init();
 
   sei();
   // Start DMX
   //dmx_start();
   // not done yet, use dummy data
-  tlc_start();
+  tlc_set_data_done();
 
   // Start scheduler.
   sched_loop();

@@ -71,19 +71,15 @@ sched_res_t wait_for_data(void)
 
 void tlc_init(void)
 {
-  // Initialize blanked (ie. LEDs off).
-  //set_blnk_on();
-
   // All these pins write to the painter.
   pin_out_off(PIN_TLC_GSCK);
   pin_out_off(PIN_TLC_VPRG);
   pin_out_off(PIN_TLC_XLAT);
   pin_out_off(PIN_TLC_SCLK);
   pin_out_off(PIN_TLC_SIN);
-  pin_out_off(PIN_TLC_BLNK);
 
   // Initialize blanked (ie. LEDs off).
-  set_blnk_on();
+  pin_out_on(PIN_TLC_BLNK);
 
   // Timer 1 is for our GSCLK:  We refresh with a GS cycle of
   // about 100 Hz (cf. Timer 2), for each full cycle we need to
@@ -92,8 +88,8 @@ void tlc_init(void)
   mcu_pin_timer1_ocma_disable();
   // Shortest duty cycle possible.
   mcu_set_timer1_ocma(1);
-  // We need about 39 clocks to get 4096 cycles at 100 Hz.
-  mcu_set_timer1_ic(39);
+  // We need about 38 clocks to get 4096 cycles at 100 Hz.
+  mcu_set_timer1_ic(38);
   // * CS1 = 0001:  No prescaler. (p100)
   // * WGM1 = 1110: Fast PWM, TOP at ICR1
   // * COM1A = 10: Set at 0, clear at Output Compare Match)
@@ -107,13 +103,13 @@ void tlc_init(void)
   // * Prescaler: 1024 (CS22:0 = 111) => 15625 Hz
   TCCR2 = _BV(CS22) | _BV(CS21) | _BV(CS20);
   // To get a 100 Hz clock we need to count 157 times (~ 99.5 Hz).
-  mcu_set_timer1_ic(156);
+  mcu_set_timer2_ocm(156);
 
   // Wait for first DMX packet.
   sched_put(&wait_for_data);
 }
 
-void tlc_start(void)
+void tlc_set_data_done(void)
 {
   g_data_done = 1;
 }
@@ -124,7 +120,6 @@ void tlc_start_gscycle(void)
 {
   // Start counter with next GS pulse.
   mcu_int_timer1_ocma_enable();
-  set_blnk_on();
 }
 
 void tlc_start_gscycle_timeout(void)
@@ -137,11 +132,10 @@ void tlc_start_gscycle_timeout(void)
 
   // Restart and enable timeout timer.
   mcu_set_timer2_cnt(0);
-  //mcu_int_timer2_ocm_enable();
+  mcu_int_timer2_ocm_enable();
 
   // Switch off BLNK.
-  //set_blnk_off();
-  set_blnk_on();
+  set_blnk_off();
 }
 
 void tlc_stop_gscycle(void)

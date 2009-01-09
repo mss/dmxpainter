@@ -60,7 +60,7 @@ sched_res_t buffer_test_next(void)
     if (rgb == 0) cnt *= -1;
   }
 
-  tlc_start();
+  tlc_set_data_done();
 #endif
   return SCHED_RE;
 }

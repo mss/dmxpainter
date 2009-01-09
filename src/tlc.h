@@ -9,10 +9,9 @@
 #define N_TLC_CHANNELS (N_RGB_CHANNELS * 3)
 
 void tlc_init(void);
-void tlc_start(void);
+//void tlc_start(void);
 
-void tlc_update(void);
-int  tlc_busy(void);
+void tlc_set_data_done(void);
 
 void tlc_start_gscycle(void);
 void tlc_start_gscycle_timeout(void);
