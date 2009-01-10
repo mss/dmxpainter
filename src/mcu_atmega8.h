@@ -6,20 +6,14 @@
 #define mcu_set_timer1_ic(v)   ICR1  = v
 #define mcu_set_timer1_ocma(v) OCR1A = v
 #define mcu_set_timer1_ocmb(v) OCR1B = v
-#define mcu_int_timer1_ovf_enable()   _BS(TIMSK, _BV(TOIE1))
-#define mcu_int_timer1_ovf_disable()  _BC(TIMSK, _BV(TOIE1))
-#define mcu_int_timer1_ocma_enable()  _BS(TIMSK, _BV(OCIE1A))
-#define mcu_int_timer1_ocma_disable() _BC(TIMSK, _BV(OCIE1A))
-#define mcu_int_timer1_ocmb_enable()  _BS(TIMSK, _BV(OCIE1B))
-#define mcu_int_timer1_ocmb_disable() _BC(TIMSK, _BV(OCIE1B))
-#define mcu_pin_timer1_ocma_enable()  pin_out(PIN_OC1A)
-#define mcu_pin_timer1_ocma_disable() pin_in( PIN_OC1A)
-#define mcu_pin_timer1_ocmb_enable()  pin_out(PIN_OC1B)
-#define mcu_pin_timer1_ocmb_disable() pin_in( PIN_OC1B)
+#define mcu_int_timer1_ovf_enable()   bits_on( TIMSK, TOIE1)
+#define mcu_int_timer1_ovf_disable()  bits_off(TIMSK, TOIE1)
+#define mcu_int_timer1_ocma_enable()  bits_on( TIMSK, OCIE1A)
+#define mcu_int_timer1_ocma_disable() bits_off(TIMSK, OCIE1A)
+#define mcu_int_timer1_ocmb_enable()  bits_on( TIMSK, OCIE1B)
+#define mcu_int_timer1_ocmb_disable() bits_off(TIMSK, OCIE1B)
 
 #define mcu_set_timer2_cnt(v)  TCNT2 = v
 #define mcu_set_timer2_ocm(v)  OCR2  = v
-#define mcu_int_timer2_ocm_enable()   _BS(TIMSK, _BV(OCIE2));
-#define mcu_int_timer2_ocm_disable()  _BC(TIMSK, _BV(OCIE2));
-#define mcu_pin_timer2_ocm_enable()   pin_out(PIN_OC2)
-#define mcu_pin_timer2_ocm_disable()  pin_in( PIN_OC2)
+#define mcu_int_timer2_ocm_enable()   bits_on( TIMSK, OCIE2);
+#define mcu_int_timer2_ocm_disable()  bits_off(TIMSK, OCIE2);

@@ -63,20 +63,12 @@ void set_vprg_dc_mode(void)
 void tlc_init(void)
 {
   // Initialize blanked (ie. LEDs off).
-  pin_out_on(PIN_TLC_BLNK);
-
-  // All these pins write to the painter.
-  pin_out_off(PIN_TLC_GSCK);
-  pin_out_off(PIN_TLC_VPRG);
-  pin_out_off(PIN_TLC_XLAT);
-  pin_out_off(PIN_TLC_SCLK);
-  pin_out_off(PIN_TLC_SIN);
+  pin_out(PIN_TLC_BLNK);
+  pin_on( PIN_TLC_BLNK);
 
   // Timer 1 is for our GSCLK:  We refresh with a GS cycle of
   // about 100 Hz (cf. Timer 2), for each full cycle we need to
   // clock the PWM 4096 times.
-  // Disable output for now.
-  mcu_pin_timer1_ocma_disable();
   // Shortest duty cycle possible.
   mcu_set_timer1_ocma(1);
   // We need about 38 clocks to get 4096 cycles at 100 Hz.
@@ -84,17 +76,24 @@ void tlc_init(void)
   // * CS1 = 0001:  No prescaler. (p100)
   // * WGM1 = 1110: Fast PWM, TOP at ICR1
   // * COM1A = 10: Set at 0, clear at Output Compare Match)
-  TCCR1B = _BV(CS10) | _BV(WGM13) | _BV(WGM12);
-  TCCR1A = _BV(WGM11) | _BV(COM1A1);
+  TCCR1B = bits_value(CS10) | bits_value(WGM13) | bits_value(WGM12);
+  TCCR1A = bits_value(WGM11) | bits_value(COM1A1);
 
   /* Timer 2: Refresh-Timer */
   // * AS2 = 0: Use IO-clock (16 MHz) for base frequency (p119)
   // * Mode: Normal mode, no PWM, count upwards (WGM21:0 = 00) (p117)
   // * Disable Output on OC2, needed for SPI (COM21:0 = 00) (p117)
   // * Prescaler: 1024 (CS22:0 = 111) => 15625 Hz
-  TCCR2 = _BV(CS22) | _BV(CS21) | _BV(CS20);
+  TCCR2 = bits_value(CS22) | bits_value(CS21) | bits_value(CS20);
   // To get a 100 Hz clock we need to count 157 times (~ 99.5 Hz).
   mcu_set_timer2_ocm(156);
+
+  // All these pins write to the painter.
+  pin_out(PIN_TLC_GSCK);
+  pin_out(PIN_TLC_VPRG);
+  pin_out(PIN_TLC_XLAT);
+  pin_out(PIN_TLC_SCLK);
+  pin_out(PIN_TLC_SIN);
 
   // Wait for first DMX packet.
   sched_put(&wait_for_data);
@@ -117,9 +116,6 @@ void tlc_int_timer1_ocma(void)
 {
   // First, disable this interrupt.
   mcu_int_timer1_ocma_disable();
-
-  // Enable PWM output.
-  mcu_pin_timer1_ocma_enable();
 
   // Restart and enable timeout timer.
   mcu_set_timer2_cnt(0);
@@ -147,8 +143,8 @@ void tlc_int_timer2_ocm(void)
 
 void shift8(uint8_t byte)
 {
-  for (uint8_t bit = _B(1, 0, 0, 0, 0, 0, 0, 0); bit; bit >>= 1) {
-	if (bit & byte) {
+  for (uint8_t bit = bits_uint8(1, 0, 0, 0, 0, 0, 0, 0); bit; bit >>= 1) {
+    if (bit & byte) {
       pin_on(PIN_TLC_SIN);
     } else {
       pin_off(PIN_TLC_SIN);
@@ -164,7 +160,7 @@ void shift12(uint8_t byte)
 
   // Plus 4 zero bits (makes a shift by 4).
   pin_off(PIN_TLC_SIN);
-  for (uint8_t bit = _B(0, 0, 0, 0, 1, 0, 0, 0); bit; bit >>= 1) {
+  for (uint8_t bit = bits_uint8(0, 0, 0, 0, 1, 0, 0, 0); bit; bit >>= 1) {
     pin_on(PIN_TLC_SCLK);
     pin_off(PIN_TLC_SCLK);
   }
@@ -176,7 +172,7 @@ void send_dc_data(void)
 {
   
   for (int rgb = 2; rgb != -1; rgb--) {
-    uint8_t dc_data = dc_buffer[rgb] & _B(1, 1, 1, 1, 1, 1, 0, 0);
+    uint8_t dc_data = dc_buffer[rgb] & bits_uint8(1, 1, 1, 1, 1, 1, 0, 0);
     uint8_t dc_out[3] = {
       (dc_data << 0) | (dc_data >> 6),
       (dc_data << 2) | (dc_data >> 4),
