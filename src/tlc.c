@@ -69,15 +69,15 @@ sched_res_t wait_for_data(void)
 
 void tlc_init(void)
 {
+  // Initialize blanked (ie. LEDs off).
+  pin_out_on(PIN_TLC_BLNK);
+
   // All these pins write to the painter.
   pin_out_off(PIN_TLC_GSCK);
   pin_out_off(PIN_TLC_VPRG);
   pin_out_off(PIN_TLC_XLAT);
   pin_out_off(PIN_TLC_SCLK);
   pin_out_off(PIN_TLC_SIN);
-
-  // Initialize blanked (ie. LEDs off).
-  pin_out_on(PIN_TLC_BLNK);
 
   // Timer 1 is for our GSCLK:  We refresh with a GS cycle of
   // about 100 Hz (cf. Timer 2), for each full cycle we need to
