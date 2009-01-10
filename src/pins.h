@@ -35,10 +35,3 @@
 #define pin_SFR_PRT(port, pin) PORT ## port
 #define pin_SFR_DDR(port, pin) DDR  ## port
 
-//////////////////////////////////////////
-
-#ifdef __AVR_ATmega8__
-#include "pins_atmega8.h"
-#else
-#error Unknown MCU
-#endif

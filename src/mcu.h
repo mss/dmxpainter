@@ -6,6 +6,7 @@
 
 #ifdef __AVR_ATmega8__
 #include "mcu_atmega8.h"
+#include "mcu_atmega8_pins.h"
 #else
 #error Unknown MCU
 #endif
