@@ -3,7 +3,7 @@
 
 #include <inttypes.h>
 
-#include "config.h"
+#include "mcu_config.h"
 
 #define N_RGB_CHANNELS (16 * N_PAINTER)
 #define N_TLC_CHANNELS (N_RGB_CHANNELS * 3)

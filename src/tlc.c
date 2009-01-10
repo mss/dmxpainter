@@ -2,8 +2,6 @@
 
 #include "tlc.h"
 
-#include "config.h"
-
 #include "mcu.h"
 #include "pins.h"
 

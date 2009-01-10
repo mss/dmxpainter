@@ -7,8 +7,6 @@
 
 //#include <util/atomic.h>
 
-#include "config.h"
-
 #include "mcu.h"
 
 #include "sched.h"

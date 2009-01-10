@@ -1,6 +1,5 @@
 #include "dmx.h"
 
-#include "config.h"
 #include "mcu.h"
 
 #include "sched.h"

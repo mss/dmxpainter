@@ -1,7 +1,5 @@
 #pragma once
 
-#include "pins.h"
-
 #define mcu_set_timer0_cnt(v) TCNT0 = v
 
 #define mcu_set_timer1_cnt(v)  TCNT1 = v
