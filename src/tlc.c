@@ -161,8 +161,7 @@ void shift12(uint8_t byte)
   // Plus 4 zero bits (makes a shift by 4).
   pin_off(PIN_TLC_SIN);
   for (uint8_t bit = bits_uint8(0, 0, 0, 0, 1, 0, 0, 0); bit; bit >>= 1) {
-    pin_on(PIN_TLC_SCLK);
-    pin_off(PIN_TLC_SCLK);
+    clock_sclk();
   }
 }
 
@@ -170,7 +169,6 @@ void shift12(uint8_t byte)
 
 void send_dc_data(void)
 {
-  
   for (int rgb = 2; rgb != -1; rgb--) {
     uint8_t dc_data = dc_buffer[rgb] & bits_uint8(1, 1, 1, 1, 1, 1, 0, 0);
     uint8_t dc_out[3] = {
