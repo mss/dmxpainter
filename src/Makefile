@@ -232,6 +232,9 @@ AVRDUDE_FLAGS += $(AVRDUDE_ERASE_COUNTER)
 
 #---------------- Debugging Options ----------------
 
+DEBUG_OS = linux
+#DEBUG_OS = win32
+
 # For simulavr only - target MCU frequency.
 DEBUG_MFREQ = $(F_CPU)
 
@@ -244,7 +247,7 @@ DEBUG_UI = gdb
 DEBUG_BACKEND = simulavr
 
 # GDB Init Filename.
-GDBINIT_FILE = __avr_gdbinit
+GDBINIT_FILE = $(TARGET).gdb
 
 # When using avarice settings for the JTAG
 JTAG_DEV = /dev/com1
@@ -272,7 +275,19 @@ NM = avr-nm
 AVRDUDE = avrdude
 REMOVE = rm -f
 COPY = cp
+
+# For Windows.
+ifeq ($(DEBUG_OS),win32)
 WINSHELL = cmd
+BGS = $(WINSHELL) /c start
+BGE = 
+PAUSE = $(WINSHELL) /c pause
+else
+START =
+BGS =
+BGE = &
+PAUSE = read
+endif
 
 
 # Define Messages
@@ -369,7 +384,7 @@ program: $(TARGET).hex $(TARGET).eep
 # Generate avr-gdb config/init file which does the following:
 #     define the reset signal, load the target file, connect to target, and set 
 #     a breakpoint at main().
-gdb-config: 
+$(GDBINIT_FILE):
 	@$(REMOVE) $(GDBINIT_FILE)
 	@echo define reset >> $(GDBINIT_FILE)
 	@echo SIGNAL SIGHUP >> $(GDBINIT_FILE)
@@ -381,18 +396,28 @@ ifeq ($(DEBUG_BACKEND),simulavr)
 endif	
 	@echo break main >> $(GDBINIT_FILE)
 
-debug: gdb-config $(TARGET).elf
-ifeq ($(DEBUG_BACKEND), avarice)
-	@echo Starting AVaRICE - Press enter when "waiting to connect" message displays.
-	@$(WINSHELL) /c start avarice --jtag $(JTAG_DEV) --erase --program --file \
-	$(TARGET).elf $(DEBUG_HOST):$(DEBUG_PORT)
-	@$(WINSHELL) /c pause
-else
-	@$(WINSHELL) /c start simulavr --gdbserver --device $(MCU) --clock-freq \
-	$(DEBUG_MFREQ) --port $(DEBUG_PORT)
-endif
-	@$(WINSHELL) /c start avr-$(DEBUG_UI) --command=$(GDBINIT_FILE)
+debug-start: debug-start-$(DEBUG_BACKEND)
 
+debug-start-avarice:
+	@echo Starting AVaRICE - Press enter when "waiting to connect" message displays.
+	$(BGS) $(DEBUG_BACKEND) --jtag $(JTAG_DEV) --erase --program --file \
+		$(TARGET).elf $(DEBUG_HOST):$(DEBUG_PORT) $(BGE)
+	@$(PAUSE)
+
+debug-start-simulavr:
+	$(BGS) $(DEBUG_BACKEND) --gdbserver --port $(DEBUG_PORT) \
+		--device $(MCU) --clock-freq $(DEBUG_MFREQ) $(BGE)
+
+debug-stop:
+	killall $(DEBUG_BACKEND)
+
+debug: $(TARGET).elf $(GDBINIT_FILE)
+	avr-$(DEBUG_UI) --command=$(GDBINIT_FILE)
+
+debug-run:
+	$(MAKE) debug-start
+	$(MAKE) debug
+	$(MAKE) debug-stop
 
 
 # Convert ELF to COFF for use in debugging / simulating in AVR Studio or VMLAB.
@@ -487,6 +512,7 @@ clean_list :
 	$(REMOVE) $(TARGET).map
 	$(REMOVE) $(TARGET).sym
 	$(REMOVE) $(TARGET).lss
+	$(REMOVE) $(GDBINIT_FILE)
 	$(REMOVE) $(OBJ)
 	$(REMOVE) $(LST)
 	$(REMOVE) $(SRC:.c=.s)
@@ -502,7 +528,7 @@ clean_list :
 # Listing of phony targets.
 .PHONY : all begin finish end sizebefore sizeafter gccversion \
 build elf hex eep lss sym coff extcoff \
-clean clean_list program debug gdb-config
+clean clean_list program debug debug-$(DEBUG_BACKEND)
 
 
 
