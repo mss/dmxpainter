@@ -519,6 +519,9 @@ clean_list :
 	$(REMOVE) $(SRC:.c=.d)
 	$(REMOVE) .dep/*
 
+clean-svn:
+	$(REMOVE) ../svn-commit.tmp
+
 
 
 # Include the dependency files.
