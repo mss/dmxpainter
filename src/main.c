@@ -1,10 +1,5 @@
 // http://www.nongnu.org/avr-libc/user-manual/modules.html
 
-#include <inttypes.h>
-
-#include <avr/io.h>
-#include <avr/interrupt.h>
-
 #include "mcu.h"
 
 #include "sched.h"
