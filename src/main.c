@@ -48,7 +48,6 @@ ISR(TIMER1_COMPA_vect)
 
 
 // TIMER2:  8-Bit: GS-Refresh-Timer
-uint8_t g_t2_comp;
 ISR(TIMER2_COMP_vect)
 {
   tlc_int_timer2_ocm();
