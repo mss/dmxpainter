@@ -41,7 +41,7 @@ ISR(TIMER0_OVF_vect)
 // TIMER1: 16-Bit: GSCLK
 ISR(TIMER1_COMPA_vect)
 {
-  tlc_start_gscycle_timeout();
+  tlc_int_timer1_ocma();
 }
 
 
@@ -51,7 +51,7 @@ ISR(TIMER1_COMPA_vect)
 uint8_t g_t2_comp;
 ISR(TIMER2_COMP_vect)
 {
-  tlc_stop_gscycle();
+  tlc_int_timer2_ocm();
 }
 
 

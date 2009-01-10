@@ -18,6 +18,12 @@
 
 /////////////////////////////////////////
 
+sched_res_t wait_for_data(void);
+
+uint8_t g_data_available;
+
+/////////////////////////////////////////
+
 // XLAT pulse to apply data to internal register.
 void clock_xlat(void)
 {
@@ -50,19 +56,6 @@ void set_vprg_gs_mode(void)
 void set_vprg_dc_mode(void)
 {
   pin_on(PIN_TLC_VPRG);
-}
-
-/////////////////////////////////////////
-
-void tlc_update(void);
-
-uint8_t g_data_done;
-sched_res_t wait_for_data(void)
-{
-  if (!g_data_done) return SCHED_RE;
-  tlc_update();
-  tlc_start_gscycle();
-  return SCHED_OK;
 }
 
 /////////////////////////////////////////
@@ -109,18 +102,18 @@ void tlc_init(void)
 
 void tlc_set_data_done(void)
 {
-  g_data_done = 1;
+  g_data_available = 1;
 }
 
 /////////////////////////////////////////
 
-void tlc_start_gscycle(void)
+void start_gscycle(void)
 {
   // Start counter with next GS pulse.
   mcu_int_timer1_ocma_enable();
 }
 
-void tlc_start_gscycle_timeout(void)
+void tlc_int_timer1_ocma(void)
 {
   // First, disable this interrupt.
   mcu_int_timer1_ocma_disable();
@@ -136,7 +129,7 @@ void tlc_start_gscycle_timeout(void)
   set_blnk_off();
 }
 
-void tlc_stop_gscycle(void)
+void tlc_int_timer2_ocm(void)
 {
   // Go into BLNK mode (switch off LEDs and reset GSCLK counter)
   set_blnk_on();
@@ -179,7 +172,7 @@ void shift12(uint8_t byte)
 
 /////////////////////////////////////////
 
-void tlc_send_dc(void)
+void send_dc_data(void)
 {
   
   for (int rgb = 2; rgb != -1; rgb--) {
@@ -196,7 +189,7 @@ void tlc_send_dc(void)
   }
 }
 
-void tlc_send_gs(void)
+void send_gs_data(void)
 {
   int16_t offset = N_TLC_CHANNELS - 1;
   while (1) {
@@ -211,15 +204,26 @@ void tlc_send_gs(void)
   }
 }
 
-void tlc_update(void)
+void send_data(void)
 {
   // Always shift out DC first.
-  tlc_send_dc();
+  send_dc_data();
   clock_xlat();
 
   // No extra SCLK needed, just shift out all GS data.
-  tlc_send_gs();
+  send_gs_data();
   clock_xlat();
+}
+
+
+/////////////////////////////////////////
+
+sched_res_t wait_for_data(void)
+{
+  if (!g_data_available) return SCHED_RE;
+  send_data();
+  start_gscycle();
+  return SCHED_OK;
 }
 
 /////////////////////////////////////////
