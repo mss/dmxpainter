@@ -23,35 +23,16 @@
 //////////////////////////////////////////
 // Interrupts
 
-#if 0
 // INT0:  External int, DMX sync
-ISR(INT0_vect)
-{
-//  dmx_int_edge();
-}
+mcu_isr(INT0);
 
 // TIMER0:  8-Bit: 4 us for DMX, timeouts
-ISR(TIMER0_OVF_vect)
-{
-//  dmx_count_frame();
-}
-#endif
-
+mcu_isr(TIMER0_OVF);
 
 // TIMER1: 16-Bit: GSCLK
-ISR(TIMER1_COMPA_vect)
-{
-  tlc_int_timer1_ocma();
-}
-
-
-
-
+mcu_isr(TIMER1_COMPA);
 // TIMER2:  8-Bit: GS-Refresh-Timer
-ISR(TIMER2_COMP_vect)
-{
-  tlc_int_timer2_ocm();
-}
+mcu_isr(TIMER2_COMP);
 
 
 //////////////////////////////////////////

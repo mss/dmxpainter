@@ -146,4 +146,12 @@ void dmx_int_disable()
 
 #else
 void dmx_init(void) {}
+
+void dmx_int_timer0_ovf(void)
+{
+}
+
+void dmx_int_ext(void)
+{
+}
 #endif
