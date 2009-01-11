@@ -1,6 +1,6 @@
 #include "buffer.h"
 
-char gs_buffer[512] = {
+char gg_buffer_gs[512] = {
   /* R     G     B */
    0xFF, 0xFF, 0xFF,
    0xEE, 0xEE, 0xEE,
@@ -37,7 +37,7 @@ char gs_buffer[512] = {
    0x01, 0x02, 0x03
 };
 
-char dc_buffer[3]   = {
+char gg_buffer_dc[3]   = {
   0xAB, // R
   0xCD, // G
   0xEF  // B
@@ -54,8 +54,8 @@ sched_res_t buffer_test_next(void)
   if (g_test_cnt++ != 10) return SCHED_RE;
   g_test_cnt = 0;
 
-  gs_buffer[rgb] += cnt;
-  if (gs_buffer[rgb] == 0) {
+  gg_buffer_gs[rgb] += cnt;
+  if (gg_buffer_gs[rgb] == 0) {
     rgb = (rgb + 1) % 3;
     if (rgb == 0) cnt *= -1;
   }

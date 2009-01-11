@@ -172,7 +172,7 @@ void shift12(uint8_t byte)
 void send_dc_data(void)
 {
   for (int rgb = 2; rgb != -1; rgb--) {
-    uint8_t dc_data = dc_buffer[rgb] & bits_uint8(1, 1, 1, 1, 1, 1, 0, 0);
+    uint8_t dc_data = buffer_get_dc(rgb) & bits_uint8(1, 1, 1, 1, 1, 1, 0, 0);
     uint8_t dc_out[3] = {
       (dc_data << 0) | (dc_data >> 6),
       (dc_data << 2) | (dc_data >> 4),
@@ -187,11 +187,20 @@ void send_dc_data(void)
 
 void send_gs_data(void)
 {
+  // Because the TLCs are daisy-chained, we have to shift out the RGB data
+  // starting at the end.  Each painter has 3 TLCs (with 16 channels each), 
+  // for the colors red, green, blue.  So we've got to shift out the 16 blue
+  // channels of the last TLC first, then 16 green ones and finally 16 red 
+  // ones.  The last data we shift out is thus the first red of the first
+  // painter.
   int16_t offset = N_TLC_CHANNELS - 1;
   while (1) {
-    shift12(gs_buffer[offset]);
+    // Shift out current channel.
+    shift12(buffer_get_gs(offset));
 
+    // Skip two colors.
     offset -= 3;
+    // If we reached the start, we jump to the next color.
     if (offset < 0) {
       offset += N_TLC_CHANNELS - 1; // Jump to end again, next color implicit
       if (offset != N_TLC_CHANNELS - 1 - 3)
