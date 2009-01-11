@@ -1,9 +1,5 @@
 #pragma once
 
-#ifndef N_PAINTER
-#define N_PAINTER 1
-#endif
-
 #define PIN_TLC_GSCK  PIN_15
 #define PIN_TLC_SCLK  PIN_28
 #define PIN_TLC_XLAT  PIN_27

@@ -1,9 +1,6 @@
 #pragma once
 
-
-#include <inttypes.h>
-
-#include "mcu_config.h"
+#include "config.h"
 
 #define N_RGB_CHANNELS (16 * N_PAINTER)
 #define N_TLC_CHANNELS (N_RGB_CHANNELS * 3)
