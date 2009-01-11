@@ -172,7 +172,7 @@ void shift12(uint8_t byte)
 void send_dc_data(void)
 {
   for (int rgb = 2; rgb != -1; rgb--) {
-    uint8_t dc_data = buffer_get_dc(rgb) & bits_uint8(1, 1, 1, 1, 1, 1, 0, 0);
+    uint8_t dc_data = gg_buffer_dc[rgb] & bits_uint8(1, 1, 1, 1, 1, 1, 0, 0);
     uint8_t dc_out[3] = {
       (dc_data << 0) | (dc_data >> 6),
       (dc_data << 2) | (dc_data >> 4),
@@ -196,7 +196,7 @@ void send_gs_data(void)
   int16_t offset = N_TLC_CHANNELS - 1;
   while (1) {
     // Shift out current channel.
-    shift12(buffer_get_gs(offset));
+    shift12(gg_buffer_gs[offset]);
 
     // Skip two colors.
     offset -= 3;
