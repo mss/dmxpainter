@@ -143,8 +143,10 @@ void tlc_int_timer2_ocm(void)
 
 void shift8(uint8_t byte)
 {
+  // Shift out all eight bits.
+  // TODO: The assembler code is a mess, why the 16-Bit counter?
   for (uint8_t bit = bits_uint8(1, 0, 0, 0, 0, 0, 0, 0); bit; bit >>= 1) {
-    if (bit & byte) {
+    if (byte & bit) {
       pin_on(PIN_TLC_SIN);
     } else {
       pin_off(PIN_TLC_SIN);
@@ -160,7 +162,7 @@ void shift12(uint8_t byte)
 
   // Plus 4 zero bits (makes a shift by 4).
   pin_off(PIN_TLC_SIN);
-  for (uint8_t bit = bits_uint8(0, 0, 0, 0, 1, 0, 0, 0); bit; bit >>= 1) {
+  for (uint8_t bit = 4; bit; bit--) {
     clock_sclk();
   }
 }
