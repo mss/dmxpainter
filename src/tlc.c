@@ -185,19 +185,43 @@ void send_gs_data(void)
   // channels of the last TLC first, then 16 green ones and finally 16 red 
   // ones.  The last data we shift out is thus the first red of the first
   // painter.
-  int16_t offset = TLC_N_CHANNELS - 1;
+  // This will always point to the start of the current painter data, 
+  // starting with the last one.
+  char * painter_gs = gg_buffer_gs
+                    + (TLC_N_CHANNELS - 1)
+                    - (TLC_N_CHANNELS_PER_PAINTER - 1);
+  // Find the current data byte to shift out, starting with the last one.
+  // Its signed so we can determine when we reached the end/start, eight
+  // bit are enough to index 48 channels per painter.
+#if TLC_N_CHANNELS_PER_PAINTER != 48
+#error What a weird painter...
+#endif
+  int8_t index = TLC_N_CHANNELS_PER_PAINTER - 1;
   while (1) {
-    // Shift out current channel.
-    shift12(gg_buffer_gs[offset]);
+    while (1) {
+      // Shift out current channel.
+      shift12(painter_gs[index]);
 
-    // Skip two colors.
-    offset -= 3;
-    // If we reached the start, we jump to the next color.
-    if (offset < 0) {
-      offset += TLC_N_CHANNELS - 1; // Jump to end again, next color implicit
-      if (offset != TLC_N_CHANNELS - 1 - 3)
-        break;
+      // Skip two colors.
+      index -= 3;
+
+      // If we reached the start, we jump to the next color.
+      if (index < 0) {
+        // Did we just finish the last (ie. red) channel?
+        if (index == -3)
+          break;
+
+        // Jump to end again and skip to next color.
+        index += TLC_N_CHANNELS_PER_PAINTER - 1;
+      }
     }
+
+    // Did we just finish the last (ie. first) painter?
+    if (painter_gs == gg_buffer_gs)
+      break;
+
+    // Move to next painter.
+    painter_gs -= TLC_N_CHANNELS_PER_PAINTER;
   }
 }
 
