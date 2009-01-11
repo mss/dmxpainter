@@ -161,22 +161,6 @@ void shift12(uint8_t byte)
 
 /////////////////////////////////////////
 
-void send_dc_data(void)
-{
-  for (int rgb = 2; rgb != -1; rgb--) {
-    uint8_t dc_data = gg_buffer_dc[rgb] & bits_uint8(1, 1, 1, 1, 1, 1, 0, 0);
-    uint8_t dc_out[3] = {
-      (dc_data << 0) | (dc_data >> 6),
-      (dc_data << 2) | (dc_data >> 4),
-      (dc_data << 4) | (dc_data >> 2)
-    };
-
-    for (int i = 0; i < TLC_N_CHANNELS; i++) {
-      shift8(dc_out[i % 3]);
-    }
-  }
-}
-
 void send_gs_data(void)
 {
   // Because the TLCs are daisy-chained, we have to shift out the RGB data
@@ -222,6 +206,22 @@ void send_gs_data(void)
 
     // Move to next painter.
     painter_gs -= TLC_N_CHANNELS_PER_PAINTER;
+  }
+}
+
+void send_dc_data(void)
+{
+  for (int rgb = 2; rgb != -1; rgb--) {
+    uint8_t dc_data = gg_buffer_dc[rgb] & bits_uint8(1, 1, 1, 1, 1, 1, 0, 0);
+    uint8_t dc_out[3] = {
+      (dc_data << 0) | (dc_data >> 6),
+       (dc_data << 2) | (dc_data >> 4),
+        (dc_data << 4) | (dc_data >> 2)
+    };
+
+    for (int i = 0; i < TLC_N_CHANNELS; i++) {
+      shift8(dc_out[i % 3]);
+    }
   }
 }
 
