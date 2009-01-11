@@ -10,14 +10,6 @@
 
 /////////////////////////////////////////
 
-#define CHANNELS_PER_TLC 16
-#define BITS_PER_CHANNEL 12
-#define TLCS_PER_PAINTER  3
-
-#define BYTES_PER_CHANNEL ((CHANNELS_PER_TLC * BITS_PER_CHANNEL) / 8)
-
-/////////////////////////////////////////
-
 sched_res_t wait_for_data(void);
 
 uint8_t g_data_available;
@@ -179,7 +171,7 @@ void send_dc_data(void)
       (dc_data << 4) | (dc_data >> 2)
     };
 
-    for (int i = 0; i < N_TLC_CHANNELS; i++) {
+    for (int i = 0; i < TLC_N_CHANNELS; i++) {
       shift8(dc_out[i % 3]);
     }
   }
@@ -193,7 +185,7 @@ void send_gs_data(void)
   // channels of the last TLC first, then 16 green ones and finally 16 red 
   // ones.  The last data we shift out is thus the first red of the first
   // painter.
-  int16_t offset = N_TLC_CHANNELS - 1;
+  int16_t offset = TLC_N_CHANNELS - 1;
   while (1) {
     // Shift out current channel.
     shift12(gg_buffer_gs[offset]);
@@ -202,8 +194,8 @@ void send_gs_data(void)
     offset -= 3;
     // If we reached the start, we jump to the next color.
     if (offset < 0) {
-      offset += N_TLC_CHANNELS - 1; // Jump to end again, next color implicit
-      if (offset != N_TLC_CHANNELS - 1 - 3)
+      offset += TLC_N_CHANNELS - 1; // Jump to end again, next color implicit
+      if (offset != TLC_N_CHANNELS - 1 - 3)
         break;
     }
   }

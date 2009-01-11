@@ -2,8 +2,12 @@
 
 #include "config.h"
 
-#define N_RGB_CHANNELS (16 * N_PAINTER)
-#define N_TLC_CHANNELS (N_RGB_CHANNELS * 3)
+#define TLC_N_CHANNELS_PER_TLC 16
+#define TLC_N_TLCS_PER_PAINTER  3
+
+#define TLC_N_CHANNELS_PER_PAINTER (TLC_N_TLCS_PER_PAINTER * TLC_N_CHANNELS_PER_TLC)
+
+#define TLC_N_CHANNELS (N_PAINTER * TLC_N_CHANNELS_PER_PAINTER)
 
 void tlc_init(void);
 //void tlc_start(void);
