@@ -211,16 +211,37 @@ void send_gs_data(void)
 
 void send_dc_data(void)
 {
-  for (int rgb = 2; rgb != -1; rgb--) {
+  // All TLCs on all the connected painters will get the same DC value.
+  // That makes it easy to generate the 6-Bit format we need:  We just
+  // create a constant buffer for the packed rgb values, containing four
+  // values for each color.
+  uint8_t dc_out[3][3];
+  for (int8_t rgb = 2; rgb >= 0; rgb--) {
     uint8_t dc_data = gg_buffer_dc[rgb] & bits_uint8(1, 1, 1, 1, 1, 1, 0, 0);
-    uint8_t dc_out[3] = {
-      (dc_data << 0) | (dc_data >> 6),
-       (dc_data << 2) | (dc_data >> 4),
-        (dc_data << 4) | (dc_data >> 2)
-    };
+    dc_out[rgb][0] = (dc_data << 0) | (dc_data >> 6);
+    dc_out[rgb][1] = (dc_data << 2) | (dc_data >> 4);
+    dc_out[rgb][2] = (dc_data << 4) | (dc_data >> 2);
+  }
 
-    for (int i = 0; i < TLC_N_CHANNELS; i++) {
-      shift8(dc_out[i % 3]);
+  // Now, shift out the dc-data like we do it with the gs-data:  First the
+  // last blue, then green and red of the last painter, until we reach the
+  // first red.
+  int8_t painter = N_PAINTER;
+  int8_t rgb     = 3 - 1;
+  int8_t channel = TLC_N_CHANNELS_PER_TLC - 1;
+  while (1) {
+    shift8(dc_out[rgb][channel & (4 - 1)]);
+
+    channel--;
+    if (channel == 0) {
+      channel = TLC_N_CHANNELS_PER_TLC - 1;
+      rgb--;
+      if (rgb < 0) {
+        rgb = 3 - 1;
+        painter--;
+        if (painter == 0)
+          break;
+      }
     }
   }
 }
