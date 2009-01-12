@@ -61,10 +61,10 @@ void tlc_init(void)
   // Timer 1 is for our GSCLK:  We refresh with a GS cycle of
   // about 100 Hz (cf. Timer 2), for each full cycle we need to
   // clock the PWM 4096 times.
-  // Shortest duty cycle possible.
-  mcu_set_timer1_ocma(1);
   // We need about 38 clocks to get 4096 cycles at 100 Hz.
   mcu_set_timer1_ic(38);
+  // 50% duty cycle.
+  mcu_set_timer1_ocma(38 / 2);
   // * CS1 = 0001:  No prescaler. (p100)
   // * WGM1 = 1110: Fast PWM, TOP at ICR1
   // * COM1A = 10: Set at 0, clear at Output Compare Match)
@@ -136,7 +136,6 @@ void tlc_int_timer2_ocm(void)
 void shift8(uint8_t byte)
 {
   // Shift out all eight bits.
-  // TODO: The assembler code is a mess, why the 16-Bit counter?
   for (uint8_t bit = bits_uint8(1, 0, 0, 0, 0, 0, 0, 0); bit; bit >>= 1) {
     if (byte & bit) {
       pin_on(PIN_TLC_SIN);
@@ -163,6 +162,8 @@ void shift12(uint8_t byte)
 
 void send_gs_data(void)
 {
+  // Set VPRG to GS mode.
+  set_vprg_gs_mode();
   // Because the TLCs are daisy-chained, we have to shift out the RGB data
   // starting at the end.  Each painter has 3 TLCs (with 16 channels each), 
   // for the colors red, green, blue.  So we've got to shift out the 16 blue
@@ -172,16 +173,16 @@ void send_gs_data(void)
   // This will always point to the start of the current painter data, 
   // starting with the last one.
   char * painter_gs = gg_buffer_gs
-                    + (TLC_N_CHANNELS - 1)
-                    - (TLC_N_CHANNELS_PER_PAINTER - 1);
+                    + TLC_N_CHANNELS
+                    - TLC_N_CHANNELS_PER_PAINTER;
   // Find the current data byte to shift out, starting with the last one.
   // Its signed so we can determine when we reached the end/start, eight
   // bit are enough to index 48 channels per painter.
 #if TLC_N_CHANNELS_PER_PAINTER != 48
 #error What a weird painter...
 #endif
-  int8_t index = TLC_N_CHANNELS_PER_PAINTER - 1;
   while (1) {
+    int8_t index = TLC_N_CHANNELS_PER_PAINTER - 1;
     while (1) {
       // Shift out current channel.
       shift12(painter_gs[index]);
@@ -211,6 +212,9 @@ void send_gs_data(void)
 
 void send_dc_data(void)
 {
+  // Set VPRG to DC mode. 
+  set_vprg_dc_mode();  
+
   // All TLCs on all the connected painters will get the same DC value.
   // That makes it easy to generate the 6-Bit format we need:  We just
   // create a constant buffer for the packed rgb values, containing four
@@ -218,36 +222,33 @@ void send_dc_data(void)
   uint8_t dc_out[3][3];
   for (int8_t rgb = 2; rgb >= 0; rgb--) {
     uint8_t dc_data = gg_buffer_dc[rgb] & bits_uint8(1, 1, 1, 1, 1, 1, 0, 0);
-    dc_out[rgb][0] = (dc_data << 0) | (dc_data >> 6);
+    dc_out[rgb][2] = (dc_data << 0) | (dc_data >> 6);
     dc_out[rgb][1] = (dc_data << 2) | (dc_data >> 4);
-    dc_out[rgb][2] = (dc_data << 4) | (dc_data >> 2);
+    dc_out[rgb][0] = (dc_data << 4) | (dc_data >> 2);
   }
 
   // Now, shift out the dc-data like we do it with the gs-data:  First the
   // last blue, then green and red of the last painter, until we reach the
   // first red.
   int8_t painter = N_PAINTER;
-  int8_t rgb     = 3 - 1;
-  int8_t channel = TLC_N_CHANNELS_PER_TLC - 1;
-  while (1) {
-    shift8(dc_out[rgb][channel & (4 - 1)]);
-
-    channel--;
-    if (channel == 0) {
-      channel = TLC_N_CHANNELS_PER_TLC - 1;
+  do {
+    int8_t rgb = 3 - 1;
+    do {
+      int8_t index = (TLC_N_CHANNELS_PER_TLC / 4) * 3 - 1;
+      do {
+        shift8(dc_out[rgb][index % 3]);
+        index--;
+      } while (index != -1);
       rgb--;
-      if (rgb < 0) {
-        rgb = 3 - 1;
-        painter--;
-        if (painter == 0)
-          break;
-      }
-    }
-  }
+    } while (rgb != -1);
+    painter--;
+  } while (painter != 0);
 }
 
 void send_data(void)
 {
+  pin_in(PIN_TLC_GSCK);
+
   // Always shift out DC first.
   send_dc_data();
   clock_xlat();
@@ -255,6 +256,8 @@ void send_data(void)
   // No extra SCLK needed, just shift out all GS data.
   send_gs_data();
   clock_xlat();
+
+  pin_out(PIN_TLC_GSCK);
 }
 
 

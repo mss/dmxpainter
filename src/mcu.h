@@ -9,6 +9,8 @@
 
 #include "mcu_config.h"
 
+#define nop() asm volatile ("nop")
+
 #define mcu_isr(name) ISR(name ## _vect) { INT_ ## name (); } int main(void)
 
 #ifdef __AVR_ATmega8__

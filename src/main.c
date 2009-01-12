@@ -7,6 +7,8 @@
 #include "tlc.h"
 #include "sd.h"
 
+#include "buffer.h"
+
 
 // http://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html
 #if __GNUC__ < 4
@@ -40,6 +42,11 @@ int main(void)
   // Initialize peripherals.
   //dmx_init();
   tlc_init();
+
+  for (uint8_t i = 0; i < 15; i++)
+    for (uint8_t rgb = 0; rgb < 3; rgb++)
+      gg_buffer_gs[i * 3 + rgb] = 0x10 | (rgb + 1);
+
 
   sei();
   // Start DMX
