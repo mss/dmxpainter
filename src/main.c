@@ -43,6 +43,7 @@ int main(void)
   buffer_init();
 
   // Initialize peripherals.
+  //sd_init();
   //dmx_init();
   tlc_init();
 
