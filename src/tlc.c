@@ -12,7 +12,7 @@
 
 sched_res_t wait_for_data(void);
 
-uint8_t g_data_available;
+volatile uint8_t g_data_available;
 
 /////////////////////////////////////////
 
@@ -127,8 +127,6 @@ void tlc_int_timer2_ocm(void)
 
   // Wait for next DMX packet.
   sched_put(&wait_for_data);
-  // TODO: next data
-  buffer_next();
 }
 
 /////////////////////////////////////////
@@ -266,8 +264,13 @@ void send_data(void)
 sched_res_t wait_for_data(void)
 {
   if (!g_data_available) return SCHED_RE;
+
   send_data();
   start_gscycle();
+
+  // TODO: next data
+  buffer_next();
+
   return SCHED_OK;
 }
 
