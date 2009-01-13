@@ -71,14 +71,17 @@ char gg_buffer_dc[3]   = {
 
 ///////////////////////////////
 
+#include "sched.h"
 #include "tlc.h"
+
+sched_res_t buffer_test_next(void);
 
 void buffer_init(void)
 {
   #define BUFFER_INIT_KEEP 1
   for (uint8_t i = 0; i < (TLC_N_CHANNELS / TLC_N_CHANNELS_PER_TLC - BUFFER_INIT_KEEP); i++)
     for (uint8_t rgb = 0; rgb < 3; rgb++)
-      gg_buffer_gs[i * 3 + rgb] = 0xFF;//0x10 | (rgb + 1);
+      gg_buffer_gs[i * 3 + rgb] = 0x00;//0x10 | (rgb + 1);
 }
 
 void buffer_next(void)
@@ -87,7 +90,6 @@ void buffer_next(void)
 }
 
 
-#include "tlc.h"
 volatile uint8_t g_test_cnt;
 sched_res_t buffer_test_next(void)
 {
