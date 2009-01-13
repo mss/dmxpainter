@@ -15,3 +15,5 @@
 
 #define INT_TIMER0_OVF   dmx_int_timer0_ovf
 #define INT_INT0         dmx_int_ext
+
+#define PIN_DEBUG     PIN_14

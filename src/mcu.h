@@ -19,3 +19,9 @@
 #else
 #error Unknown MCU
 #endif
+
+
+
+#define mcu_init() pin_out(PIN_DEBUG)
+volatile uint8_t gg_mcu_debug;
+#define mcu_debug() do { if ((gg_mcu_debug = ~gg_mcu_debug)) { pin_on(PIN_DEBUG); } else { pin_off(PIN_DEBUG); } } while (0)
