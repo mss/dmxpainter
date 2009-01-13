@@ -74,14 +74,20 @@ char gg_buffer_dc[3]   = {
 #include "sched.h"
 #include "tlc.h"
 
+#include <string.h>
+
 sched_res_t buffer_test_next(void);
 
 void buffer_init(void)
 {
-  #define BUFFER_INIT_KEEP 1
-  for (uint8_t i = 0; i < (TLC_N_CHANNELS / TLC_N_CHANNELS_PER_TLC - BUFFER_INIT_KEEP); i++)
+  
+  #define BUFFER_INIT_KEEP 0
+  #if BUFFER_INIT_KEEP == 0
+  memset(gg_buffer_gs, 0x00, sizeof(gg_buffer_gs));
+  #endif
+  for (uint8_t i = 0; i < (TLC_N_CHANNELS / TLC_N_TLCS_PER_PAINTER - BUFFER_INIT_KEEP); i++)
     for (uint8_t rgb = 0; rgb < 3; rgb++)
-      gg_buffer_gs[i * 3 + rgb] = 0x00;//0x10 | (rgb + 1);
+      gg_buffer_gs[i * 3 + rgb] = 0x10 | (rgb + 1);
 }
 
 void buffer_next(void)
