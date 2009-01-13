@@ -1,6 +1,6 @@
 #include "sched.h"
 
-#include <inttypes.h>
+#include "mcu.h"
 
 #include <string.h>
 
