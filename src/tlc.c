@@ -16,6 +16,20 @@ volatile uint8_t g_data_available;
 
 /////////////////////////////////////////
 
+volatile uint8_t g_data_wait;
+void tlc_wait_for_data()
+{
+  if (!g_data_wait) return;
+  g_data_wait = wait_for_data() != SCHED_OK;
+}
+void set_wait_for_data(void)
+{
+  //sched_put(&wait_for_data);
+  g_data_wait = 1;
+}
+
+/////////////////////////////////////////
+
 // XLAT pulse to apply data to internal register.
 void clock_xlat(void)
 {
@@ -88,7 +102,7 @@ void tlc_init(void)
   pin_out(PIN_TLC_SIN);
 
   // Wait for first DMX packet.
-  sched_put(&wait_for_data);
+  set_wait_for_data();
 }
 
 void tlc_set_data_done(void)
@@ -126,7 +140,7 @@ void tlc_int_timer2_ocm(void)
   mcu_int_timer2_ocm_disable();
 
   // Wait for next DMX packet.
-  sched_put(&wait_for_data);
+  set_wait_for_data();
 }
 
 /////////////////////////////////////////

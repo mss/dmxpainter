@@ -55,6 +55,9 @@ int main(void)
   buffer_next();
 
   // Start scheduler.
-  sched_loop();
+  //sched_loop();
+  while (1) {
+    tlc_wait_for_data();
+  }
   return 0;
 }

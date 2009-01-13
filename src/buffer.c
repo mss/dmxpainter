@@ -93,7 +93,8 @@ void buffer_init(void)
 
 void buffer_next(void)
 {
-  sched_put(&buffer_test_next);
+  //sched_put(&buffer_test_next);
+  buffer_test_next();
 }
 
 
