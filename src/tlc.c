@@ -16,16 +16,21 @@ volatile uint8_t g_data_available;
 
 /////////////////////////////////////////
 
-volatile uint8_t g_data_wait;
+volatile uint8_t g_data_shifting;
+void send_data(void);
+void start_gscycle(void);
 void tlc_wait_for_data()
 {
-  if (!g_data_wait) return;
-  g_data_wait = wait_for_data() != SCHED_OK;
+  if (g_data_shifting) return;
+  send_data();
+  start_gscycle();
+  // Continue in background...
 }
-void set_wait_for_data(void)
+void set_shifting_off(void)
 {
   //sched_put(&wait_for_data);
-  g_data_wait = 1;
+  g_data_shifting = 0;
+  mcu_debug_off();
 }
 
 /////////////////////////////////////////
@@ -78,7 +83,7 @@ void tlc_init(void)
   // We need about 38 clocks to get 4096 cycles at 100 Hz.
   mcu_set_timer1_ic(38);
   // 50% duty cycle.
-  mcu_set_timer1_ocma(38 / 2);
+  mcu_set_timer1_ocma(1);
   // * CS1 = 0001:  No prescaler. (p100)
   // * WGM1 = 1110: Fast PWM, TOP at ICR1
   // * COM1A = 10: Set at 0, clear at Output Compare Match)
@@ -102,7 +107,6 @@ void tlc_init(void)
   pin_out(PIN_TLC_SIN);
 
   // Wait for first DMX packet.
-  set_wait_for_data();
 }
 
 void tlc_set_data_done(void)
@@ -114,6 +118,7 @@ void tlc_set_data_done(void)
 
 void start_gscycle(void)
 {
+  g_data_shifting = 1;
   // Start counter with next GS pulse.
   mcu_int_timer1_ocma_enable();
 }
@@ -126,13 +131,18 @@ void tlc_int_timer1_ocma(void)
   // Restart and enable timeout timer.
   mcu_set_timer2_cnt(0);
   mcu_int_timer2_ocm_enable();
+  mcu_debug_on();
 
   // Switch off BLNK.
   set_blnk_off();
+  // Hack: Switch on GSCLK
+  pin_out(PIN_TLC_GSCK);
 }
 
 void tlc_int_timer2_ocm(void)
 {
+  // Hack: Switch off GSCLK
+  pin_in(PIN_TLC_GSCK);
   // Go into BLNK mode (switch off LEDs and reset GSCLK counter)
   set_blnk_on();
 
@@ -140,7 +150,7 @@ void tlc_int_timer2_ocm(void)
   mcu_int_timer2_ocm_disable();
 
   // Wait for next DMX packet.
-  set_wait_for_data();
+  set_shifting_off();
 }
 
 /////////////////////////////////////////
@@ -259,8 +269,6 @@ void send_dc_data(void)
 
 void send_data(void)
 {
-  pin_in(PIN_TLC_GSCK);
-
   // Always shift out DC first.
   send_dc_data();
   clock_xlat();
@@ -269,7 +277,9 @@ void send_data(void)
   send_gs_data();
   clock_xlat();
 
-  pin_out(PIN_TLC_GSCK);
+  clock_sclk();
+
+  g_data_available = 0;
 }
 
 
@@ -281,9 +291,10 @@ sched_res_t wait_for_data(void)
 
   send_data();
   start_gscycle();
+  // Continue in background...
 
   // TODO: next data
-  buffer_next();
+  //buffer_next();
 
   return SCHED_OK;
 }

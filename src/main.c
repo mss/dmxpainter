@@ -52,11 +52,13 @@ int main(void)
   // Start DMX
   //dmx_start();
   // not done yet, use dummy data
-  buffer_next();
+  //buffer_next();
 
   // Start scheduler.
   //sched_loop();
+
   while (1) {
+    buffer_next();
     tlc_wait_for_data();
   }
   return 0;

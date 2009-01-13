@@ -19,9 +19,8 @@ char gg_buffer_gs[512] = {
    0x44, 0x44, 0x44,
    0x33, 0x33, 0x33,
    0x22, 0x22, 0x22,
-   0x11, 0x11, 0x00,
 
-   0x00, 0x00, 0xFF,
+   0xFF, 0x00, 0x00,
 
 
 
@@ -63,9 +62,9 @@ char gg_buffer_gs[512] = {
 };
 
 char gg_buffer_dc[3]   = {
-  0x0B, // R
-  0x09, // G
-  0x0A  // B
+  0x08, // R
+  0x08, // G
+  0x08  // B
 };
 
 
@@ -79,40 +78,45 @@ char gg_buffer_dc[3]   = {
 
 sched_res_t buffer_test_next(void);
 
+volatile uint32_t g_delay;
+volatile uint8_t g_rgb = 0;
+void reset_counter(void)
+{
+  g_delay = 0;
+}
+
 void buffer_init(void)
 {
-  
-  #define BUFFER_INIT_KEEP 0
-  #if BUFFER_INIT_KEEP == 1
+  #define BUFFER_INIT_KEEP 1
+
+  #if BUFFER_INIT_KEEP == 0
   memset(gg_buffer_gs, 0x00, sizeof(gg_buffer_gs));
   #endif
   for (uint8_t i = 0; i < (TLC_N_CHANNELS / TLC_N_TLCS_PER_PAINTER - BUFFER_INIT_KEEP); i++)
     for (uint8_t rgb = 0; rgb < 3; rgb++)
-      gg_buffer_gs[i * 3 + rgb] = 0x10 | (rgb + 1);
+      gg_buffer_gs[i * 3 + rgb] = 0x00;// | (rgb + 1);
+   reset_counter();
 }
 
 void buffer_next(void)
 {
   //sched_put(&buffer_test_next);
+  //tlc_set_data_done();
   buffer_test_next();
 }
 
 
-volatile uint8_t g_test_cnt;
 sched_res_t buffer_test_next(void)
 {
-#if 0
-  uint8_t rgb =  0;
-  uint8_t cnt = -1;
-  if (g_test_cnt++ != 100) return SCHED_RE;
-  g_test_cnt = 0;
+  char * foo = gg_buffer_gs + 15 * 3;
 
-  gg_buffer_gs[rgb] += cnt;
-  if (gg_buffer_gs[rgb] == 0) {
-    rgb = (rgb + 1) % 3;
-    if (rgb == 0) cnt *= -1;
-  }
-#endif
+  if (g_delay++ < 100000) return 0;
+  reset_counter();
+  foo[0] = (g_rgb % 3) == 0 ? 0xFF : 0x00;
+  foo[1] = (g_rgb % 3) == 1 ? 0xFF : 0x00;
+  foo[2] = (g_rgb % 3) == 2 ? 0xFF : 0x00;
+  g_rgb--;
+
   tlc_set_data_done();
   return SCHED_OK;
 }

@@ -154,11 +154,11 @@ void int_dummy(void) { }
 void dmx_init(void)
 {
   // Configure as input.
-  pin_in(PIN_DMX);
+  //pin_in(PIN_DMX);
 
   // Trigger INT0 on any edge (p67)
-  bits_on(MCUCR, ISC01);
-  bits_on(MCUCR, ISC00);
+  //bits_on(MCUCR, ISC01);
+  //bits_on(MCUCR, ISC00);
 }
 
 void dmx_int_timer0_ovf(void)
