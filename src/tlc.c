@@ -128,7 +128,7 @@ void tlc_int_timer2_ocm(void)
   // Wait for next DMX packet.
   sched_put(&wait_for_data);
   // TODO: next data
-  sched_put(&buffer_test_next);
+  buffer_next();
 }
 
 /////////////////////////////////////////

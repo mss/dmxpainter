@@ -35,24 +35,22 @@ mcu_isr(TIMER2_COMP);
 int main(void)
 {
   cli();
-  
+
   // Initialize scheduler.
   sched_init();
+
+  // Initialize buffer.
+  buffer_init();
 
   // Initialize peripherals.
   //dmx_init();
   tlc_init();
 
-  for (uint8_t i = 0; i < 15; i++)
-    for (uint8_t rgb = 0; rgb < 3; rgb++)
-      gg_buffer_gs[i * 3 + rgb] = 0x10 | (rgb + 1);
-
-
   sei();
   // Start DMX
   //dmx_start();
   // not done yet, use dummy data
-  tlc_set_data_done();
+  buffer_next();
 
   // Start scheduler.
   sched_loop();
