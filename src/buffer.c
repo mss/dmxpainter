@@ -71,6 +71,7 @@ char gg_buffer_dc[3]   = {
 
 ///////////////////////////////
 
+#include "mcu.h"
 #include "sched.h"
 #include "tlc.h"
 
@@ -82,7 +83,7 @@ void buffer_init(void)
 {
   
   #define BUFFER_INIT_KEEP 0
-  #if BUFFER_INIT_KEEP == 0
+  #if BUFFER_INIT_KEEP == 1
   memset(gg_buffer_gs, 0x00, sizeof(gg_buffer_gs));
   #endif
   for (uint8_t i = 0; i < (TLC_N_CHANNELS / TLC_N_TLCS_PER_PAINTER - BUFFER_INIT_KEEP); i++)
