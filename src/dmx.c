@@ -98,19 +98,22 @@ state_nop:
 }
 
 
+void int_dummy(void) { }
+
+
 void dmx_init(void)
 {
   // Configure as input.
   pin_in(PIN_DMX);
 
-  g_int_handler = &wait_state;
+  g_int_handler = &int_dummy;
   g_sch_handler = NULL;
 
   // Trigger INT0 on any edge (p67)
   _BC(MCUCR, _BV(ISC01));
   _BS(MCUCR, _BV(ISC00));
 
-  sched_put(&sched_handler);
+  //sched_put(&sched_handler);
 }
 
 #define TIMER_BOTTOM (0xFF - 16 * 4)
@@ -145,7 +148,18 @@ void dmx_int_disable()
 
 
 #else
-void dmx_init(void) {}
+void int_dummy(void) { }
+
+
+void dmx_init(void)
+{
+  // Configure as input.
+  pin_in(PIN_DMX);
+
+  // Trigger INT0 on any edge (p67)
+  bits_on(MCUCR, ISC01);
+  bits_on(MCUCR, ISC00);
+}
 
 void dmx_int_timer0_ovf(void)
 {
