@@ -35,6 +35,7 @@ mcu_isr(TIMER2_COMP);
 int main(void)
 {
   cli();
+  mcu_init();
 
   // Initialize scheduler.
   sched_init();
