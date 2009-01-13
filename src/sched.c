@@ -79,13 +79,16 @@ void sched_loop()
       
       // Get next pointer, exit loop if done.
       running  = sched_get(&func);
-      running &= (sched_res_t)(func == first);
+      if (func == first) {
+        sched_put(func);
+        running = 0;
+      }
     }
 
     // Wait for next interrupt.
     sleep_enable();
     sei();
-    sleep_cpu();
+    //sleep_cpu();
   }
 }
 
