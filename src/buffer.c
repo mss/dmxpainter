@@ -105,18 +105,22 @@ void buffer_next(void)
   buffer_test_next();
 }
 
-
 sched_res_t buffer_test_next(void)
 {
   char * foo = gg_buffer_gs + 15 * 3;
 
-  if (g_delay++ < 100000) return 0;
-  reset_counter();
+  //if (g_delay++ < 100000) return 0;
+  //reset_counter();
   foo[0] = (g_rgb % 3) == 0 ? 0xFF : 0x00;
   foo[1] = (g_rgb % 3) == 1 ? 0xFF : 0x00;
   foo[2] = (g_rgb % 3) == 2 ? 0xFF : 0x00;
-  g_rgb--;
+  //g_rgb--;
 
   tlc_set_data_done();
   return SCHED_OK;
+}
+
+void buffer_do(void)
+{
+  g_rgb--;
 }

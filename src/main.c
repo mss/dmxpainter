@@ -45,7 +45,7 @@ int main(void)
 
   // Initialize peripherals.
   //sd_init();
-  //dmx_init();
+  dmx_init();
   tlc_init();
 
   sei();
