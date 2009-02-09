@@ -4,6 +4,8 @@
 
 #include "sched.h"
 
+#include "buffer.h"
+
 #if 0
 
 uint8_t g_frame_count;
@@ -167,5 +169,6 @@ void dmx_int_timer0_ovf(void)
 
 void dmx_int_ext(void)
 {
+  gg_buffer_dc[0] = gg_buffer_dc[0] ? 0x00 : 0x08;
 }
 #endif
