@@ -30,7 +30,6 @@ void set_shifting_off(void)
 {
   //sched_put(&wait_for_data);
   g_data_shifting = 0;
-  mcu_debug_off();
 }
 
 /////////////////////////////////////////
@@ -131,7 +130,6 @@ void tlc_int_timer1_ocma(void)
   // Restart and enable timeout timer.
   mcu_set_timer2_cnt(0);
   mcu_int_timer2_ocm_enable();
-  mcu_debug_on();
 
   // Switch off BLNK.
   set_blnk_off();
