@@ -58,7 +58,8 @@ int main(void)
   //sched_loop();
 
   while (1) {
-    buffer_next();
+    //buffer_next();
+    tlc_set_data_done();
     tlc_wait_for_data();
   }
   return 0;
