@@ -23,9 +23,9 @@ char gg_buffer_gs[512] = {
 };
 
 char gg_buffer_dc[3]   = {
-  0x08, // R
-  0x08, // G
-  0x08  // B
+  0x00, // R
+  0x00, // G
+  0x0B  // B
 };
 
 
