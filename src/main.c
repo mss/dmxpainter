@@ -20,9 +20,10 @@
 
 // INT0:  External int, DMX sync
 mcu_isr(INT0);
-
 // TIMER0:  8-Bit: 4 us for DMX, timeouts
 mcu_isr(TIMER0_OVF);
+// USART:  RXD
+mcu_isr(USART_RXC);
 
 // TIMER1: 16-Bit: GSCLK
 mcu_isr(TIMER1_COMPA);

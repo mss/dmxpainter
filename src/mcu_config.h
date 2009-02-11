@@ -7,12 +7,14 @@
 #define PIN_TLC_BLNK  PIN_25
 #define PIN_TLC_VPRG  PIN_24
 
-#define PIN_DMX   PIN_INT0
+#define PIN_DMX_INT   PIN_INT0
+#define PIN_DMX_RXD   PIN_RXD
 
 #define INT_TIMER1_COMPA tlc_int_timer1_ocma
 #define INT_TIMER2_COMP  tlc_int_timer2_ocm
 
 #define INT_TIMER0_OVF   dmx_int_timer0_ovf
 #define INT_INT0         dmx_int_ext
+#define INT_USART_RXC    dmx_int_usart_rxc
 
 #define PIN_DEBUG     PIN_14
