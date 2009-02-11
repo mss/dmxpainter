@@ -7,7 +7,6 @@
 //////////////////////////////////////////
 
 #define pin_is_set(pp)  (bit_is_set(pin_SFR_PIN(pp), pin_PIN_NUM(pp)))
-#define pin_get(pp)     (pin_is_set(pp) >> pin_PIN_NUM(pp))
 
 #define pin_on(pp)      bits_mask_on( pin_SFR_PRT(pp), pin_PIN_VAL(pp))
 #define pin_off(pp)     bits_mask_off(pin_SFR_PRT(pp), pin_PIN_VAL(pp))
