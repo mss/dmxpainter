@@ -10,6 +10,8 @@
 #define PIN_DMX_INT   PIN_INT0
 #define PIN_DMX_RXD   PIN_RXD
 
+#define PIN_LED_ON    PIN_3
+
 #define INT_TIMER1_COMPA tlc_int_timer1_ocma
 #define INT_TIMER2_COMP  tlc_int_timer2_ocm
 

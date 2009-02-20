@@ -50,6 +50,7 @@ void main_init(void)
 
 void main_start(void)
 {
+  pin_on(PIN_LED_ON);
 }
 
 void main_loop(void)
