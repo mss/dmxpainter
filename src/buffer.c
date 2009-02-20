@@ -35,12 +35,9 @@ char gg_buffer_dc[3] = DC_RGB(
 ///////////////////////////////
 
 #include "mcu.h"
-#include "sched.h"
 #include "tlc.h"
 
 #include <string.h>
-
-sched_res_t buffer_test_next(void);
 
 volatile uint32_t g_delay;
 volatile uint8_t g_rgb = 0;
@@ -67,13 +64,6 @@ void buffer_init(void)
 #if 0
 void buffer_next(void)
 {
-  //sched_put(&buffer_test_next);
-  //tlc_set_data_done();
-  buffer_test_next();
-}
-
-sched_res_t buffer_test_next(void)
-{
   char * foo = gg_buffer_gs + 15 * 3;
 
   //if (g_delay++ < 100000) return 0;
@@ -84,7 +74,6 @@ sched_res_t buffer_test_next(void)
   //g_rgb--;
 
   tlc_set_data_done();
-  return SCHED_OK;
 }
 
 void buffer_do(void)

@@ -5,12 +5,9 @@
 #include "mcu.h"
 #include "pins.h"
 
-#include "sched.h"
 #include "buffer.h"
 
 /////////////////////////////////////////
-
-sched_res_t wait_for_data(void);
 
 volatile uint8_t g_data_available;
 
@@ -28,7 +25,6 @@ void tlc_wait_for_data()
 }
 void set_shifting_off(void)
 {
-  //sched_put(&wait_for_data);
   g_data_shifting = 0;
 }
 
@@ -280,21 +276,5 @@ void send_data(void)
   g_data_available = 0;
 }
 
-
-/////////////////////////////////////////
-
-sched_res_t wait_for_data(void)
-{
-  if (!g_data_available) return SCHED_RE;
-
-  send_data();
-  start_gscycle();
-  // Continue in background...
-
-  // TODO: next data
-  //buffer_next();
-
-  return SCHED_OK;
-}
 
 /////////////////////////////////////////

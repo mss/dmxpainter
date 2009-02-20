@@ -2,8 +2,6 @@
 
 #include "mcu.h"
 
-#include "sched.h"
-
 #include "buffer.h"
 
 
@@ -61,15 +59,12 @@ void dmx_init(void)
   // 2 stop bits (USBS = 1),
   // no parity   (UPM  = 00).
   UBRRL = F_CPU / (16 * 250e3) - 1;
-  //UBRRL = 6;
   UBRRH = (0 << URSEL) | 0;
   UCSRC = (1 << URSEL)
         | bits_value(UCSZ1) | bits_value(UCSZ0)
         | bits_value(USBS);
   // Enable USART RXD interrupt (and clear UCSZ2 and *XEN).
   UCSRB = bits_value(RXCIE);
-  //UCSRA = bits_value(U2X);
-  bits_on(UCSRB, TXEN);
 
   // Enable timer interrupt (p72).
   bits_on(TIMSK, TOIE0);

@@ -2,7 +2,6 @@
 
 #include "mcu.h"
 
-#include "sched.h"
 #include "dmx.h"
 #include "tlc.h"
 #include "sd.h"
@@ -33,13 +32,10 @@ mcu_isr(TIMER2_COMP);
 
 //////////////////////////////////////////
 
-int main(void)
+void main_init(void)
 {
   cli();
   mcu_init();
-
-  // Initialize scheduler.
-  sched_init();
 
   // Initialize buffer.
   buffer_init();
@@ -50,18 +46,24 @@ int main(void)
   tlc_init();
 
   sei();
-  // Start DMX
-  //dmx_start();
-  // not done yet, use dummy data
-  //buffer_next();
+}
 
-  // Start scheduler.
-  //sched_loop();
+void main_start(void)
+{
+}
 
+void main_loop(void)
+{
   while (1) {
-    //buffer_next();
     tlc_set_data_done();
     tlc_wait_for_data();
   }
+}
+
+int main(void)
+{
+  main_init();
+  main_start();
+  main_loop();
   return 0;
 }
