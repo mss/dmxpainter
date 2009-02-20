@@ -22,11 +22,14 @@ char gg_buffer_gs[512] = {
 
 };
 
-char gg_buffer_dc[3]   = {
-  0x00, // R
-  0x00, // G
-  0x0B  // B
-};
+
+#define DC(p) (char)(0x3F * ((char)p - 0) / 100)
+#define DC_RGB(r, g, b, x) { DC(r), DC(g), DC(b) }
+char gg_buffer_dc[3] = DC_RGB(
+                          100,
+                           30,
+                           30,
+                           0);
 
 
 ///////////////////////////////
