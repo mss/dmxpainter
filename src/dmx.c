@@ -71,6 +71,8 @@ void dmx_init(void)
 
   // Trigger INT0 on any edge (ISC0 = 01, p67).
   bits_on(MCUCR, ISC00);
+  // But explicitly disable it for now.
+  disable_trigger();
 }
 
 void dmx_exec(void)
