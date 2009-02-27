@@ -14,6 +14,7 @@
 #define mcu_isr(name) ISR(name ## _vect) { INT_ ## name (); } int main(void)
 
 #ifdef __AVR_ATmega8__
+#define  MCU "atmega8"
 #include "mcu/atmega8.h"
 #include "mcu/atmega8_pins.h"
 #else
