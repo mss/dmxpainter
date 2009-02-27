@@ -3,7 +3,6 @@
 #include "tlc.h"
 
 #include "mcu.h"
-#include "pins.h"
 
 #include "buffer.h"
 
