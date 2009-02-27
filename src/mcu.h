@@ -9,8 +9,14 @@
 
 #include "config.h"
 
+/**
+ * Execute a single NOP instruction to delay something by one cycle.
+ */
 #define nop() asm volatile ("nop")
 
+/**
+ * Map the ISR NAME_vect to the interrupt function INT_NAME (from config.h).
+ */
 #define mcu_isr(name) ISR(name ## _vect) { INT_ ## name (); } int main(void)
 
 #ifdef __AVR_ATmega8__

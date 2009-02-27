@@ -8,6 +8,7 @@
 #include "buffer.h"
 
 
+// We require GCC 4.x for inlining and stuff.
 // http://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html
 #if __GNUC__ < 4
 #error GCC 4.x.x required!
@@ -31,8 +32,12 @@ mcu_isr(TIMER2_COMP);
 
 //////////////////////////////////////////
 
+/**
+ * 
+ */
 void main_init(void)
 {
+  // Disable interrupts while initializing.
   cli();
   mcu_init();
 
@@ -40,21 +45,30 @@ void main_init(void)
   buffer_init();
 
   // Initialize peripherals.
-  //sd_init();
   dmx_init();
   tlc_init();
 
+  // Enable interrupts again.
   sei();
 }
 
+/**
+ *
+ */
 void main_start(void)
 {
+  // Signal that we're running.
   pin_on(PIN_LED_ON);
 }
 
+/**
+ *
+ */
 void main_loop(void)
 {
+  // Forever...
   while (1) {
+    // FIXME
     tlc_set_data_done();
     tlc_wait_for_data();
   }
@@ -62,8 +76,12 @@ void main_loop(void)
 
 int main(void)
 {
+  // Initialize modules.
   main_init();
+  // Start modules if necessary.
   main_start();
+  // Gogogo!
   main_loop();
+  // Never reached.
   return 0;
 }
