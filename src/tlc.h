@@ -10,7 +10,6 @@
 #define TLC_N_CHANNELS (N_PAINTER * TLC_N_CHANNELS_PER_PAINTER)
 
 void tlc_init(void);
-//void tlc_start(void);
 
 void tlc_set_data_done(void);
 

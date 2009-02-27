@@ -23,13 +23,13 @@ void disable_timer(void)
 
 void enable_trigger(void)
 {
-  // Enable interrupt.
+  // Enable interrupt triggered by edge on pin.
   bits_on(GICR, INT0);
 }
 
 void disable_trigger(void)
 {
-  // Disable interrupt.
+  // Disable interrupt triggered by edge on pin.
   bits_off(GICR, INT0);
 }
 
@@ -71,8 +71,15 @@ void dmx_init(void)
 
   // Trigger INT0 on any edge (ISC0 = 01, p67).
   bits_on(MCUCR, ISC00);
+}
+
+void dmx_exec(void)
+{
+  // Just enable the trigger for the pin.
   enable_trigger();
 }
+
+///////////////////////////////
 
 enum {
   STATE_IDLE,

@@ -55,10 +55,13 @@ void main_init(void)
 /**
  *
  */
-void main_start(void)
+void main_exec(void)
 {
   // Signal that we're running.
   pin_on(PIN_LED_ON);
+
+  // Start DMX processing.
+  dmx_exec();
 }
 
 /**
@@ -79,7 +82,7 @@ int main(void)
   // Initialize modules.
   main_init();
   // Start modules if necessary.
-  main_start();
+  main_exec();
   // Gogogo!
   main_loop();
   // Never reached.
