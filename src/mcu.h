@@ -17,7 +17,11 @@
 /**
  * Map the ISR NAME_vect to the interrupt function INT_NAME (from config.h).
  */
-#define mcu_isr(name) ISR(name ## _vect) { INT_ ## name (); } int main(void)
+#define mcu_register_isr(name) \
+  void INT_ ## name (void); \
+  ISR(name ## _vect) { INT_ ## name (); } \
+  int main(void)
+
 
 #ifdef __AVR_ATmega8__
 #define  MCU "atmega8"
