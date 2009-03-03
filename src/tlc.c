@@ -67,10 +67,6 @@ void set_vprg_dc_mode(void)
 
 void tlc_init(void)
 {
-  // Initialize blanked (ie. LEDs off).
-  pin_out(PIN_TLC_BLNK);
-  pin_on( PIN_TLC_BLNK);
-
   // Timer 1 is for our GSCLK:  We refresh with a GS cycle of
   // about 100 Hz (cf. Timer 2), for each full cycle we need to
   // clock the PWM 4096 times.
@@ -100,7 +96,14 @@ void tlc_init(void)
   pin_out(PIN_TLC_SCLK);
   pin_out(PIN_TLC_SIN);
 
-  // Wait for first DMX packet.
+  // This one writes too, but has to be initialized blanked
+  // (ie. LEDs off).  The external pullup took care against
+  // flickering on boot.
+  pin_out(PIN_TLC_BLNK);
+  set_blnk_on();
+
+  // Here we could read the return from the painter.
+  pin_in( PIN_TLC_SRTN);
 }
 
 void tlc_set_data_done(void)

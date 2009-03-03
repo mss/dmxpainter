@@ -10,6 +10,7 @@
 #define PIN_TLC_SIN   PIN_26
 #define PIN_TLC_BLNK  PIN_25
 #define PIN_TLC_VPRG  PIN_24
+#define PIN_TLC_SRTN  PIN_23
 
 #define PIN_DMX_INT   PIN_INT0
 #define PIN_DMX_RXD   PIN_RXD
