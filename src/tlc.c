@@ -8,23 +8,23 @@
 
 /////////////////////////////////////////
 
-volatile uint8_t g_data_available;
+static volatile uint8_t data_available_;
 
 /////////////////////////////////////////
 
-volatile uint8_t g_data_shifting;
+static volatile uint8_t data_shifting_;
 void send_data(void);
 void start_gscycle(void);
 void tlc_wait_for_data()
 {
-  if (g_data_shifting) return;
+  if (data_shifting_) return;
   send_data();
   start_gscycle();
   // Continue in background...
 }
 void set_shifting_off(void)
 {
-  g_data_shifting = 0;
+  data_shifting_ = 0;
 }
 
 /////////////////////////////////////////
@@ -108,14 +108,14 @@ void tlc_init(void)
 
 void tlc_set_data_done(void)
 {
-  g_data_available = 1;
+  data_available_ = 1;
 }
 
 /////////////////////////////////////////
 
 void start_gscycle(void)
 {
-  g_data_shifting = 1;
+  data_shifting_ = 1;
   // Start counter with next GS pulse.
   mcu_int_timer1_ocma_enable();
 }
@@ -190,7 +190,7 @@ void send_gs_data(void)
   // painter.
   // This will always point to the start of the current painter data, 
   // starting with the last one.
-  char * painter_gs = gg_buf_gs
+  char * painter_gs = buf_gs__
                     + TLC_N_CHANNELS
                     - TLC_N_CHANNELS_PER_PAINTER;
   // Find the current data byte to shift out, starting with the last one.
@@ -220,7 +220,7 @@ void send_gs_data(void)
     }
 
     // Did we just finish the last (ie. first) painter?
-    if (painter_gs == gg_buf_gs)
+    if (painter_gs == buf_gs__)
       break;
 
     // Move to next painter.
@@ -239,7 +239,7 @@ void send_dc_data(void)
   // values for each color.
   uint8_t dc_out[3][3];
   for (int8_t rgb = 2; rgb >= 0; rgb--) {
-    uint8_t dc_data = gg_buf_dc[rgb] & bits_uint8(1, 1, 1, 1, 1, 1, 0, 0);
+    uint8_t dc_data = buf_dc__[rgb] & bits_uint8(1, 1, 1, 1, 1, 1, 0, 0);
     dc_out[rgb][2] = (dc_data << 0) | (dc_data >> 6);
     dc_out[rgb][1] = (dc_data << 2) | (dc_data >> 4);
     dc_out[rgb][0] = (dc_data << 4) | (dc_data >> 2);
@@ -275,7 +275,7 @@ void send_data(void)
 
   clock_sclk();
 
-  g_data_available = 0;
+  data_available_ = 0;
 }
 
 

@@ -1,32 +1,15 @@
 #include "buf.h"
 
-char gg_buf_gs[512] = {
-  /* R     G     B */
-   0xFF, 0xFF, 0xFF,  // 01
-   0xFF, 0x00, 0xFF,  // 02
-   0x00, 0x00, 0x00,  // 03
-   0xDD, 0xDD, 0xDD,  // 04
-   0xCC, 0xCC, 0xCC,  // 05
-   0xBB, 0xBB, 0xBB,  // 06
-   0xAA, 0xAA, 0xAA,  // 07
-   0x99, 0x99, 0x99,  // 08
-   0x88, 0x88, 0x88,  // 09
-   0x77, 0x77, 0x77,  // 10
-   0x66, 0x66, 0x66,  // 11
-   0x55, 0x55, 0x55,  // 12
-   0x44, 0x44, 0x44,  // 13
-   0x33, 0x33, 0x33,  // 14
-   0x22, 0x22, 0x22,  // 15
+/*
+ * All channel greyscale data is initialized to zero.
+ */
+volatile char buf_gs__[512];
 
-   0x33, 0x00, 0x33   // 16
-
-};
-
-
-#define DC(p) (char)(0x3F * ((char)p - 0) / 100)
-#define DC_RGB(r, g, b, x) { DC(r), DC(g), DC(b) }
-char gg_buf_dc[3] = DC_RGB(
-                          100,
-                           30,
-                           30,
-                           0);
+/*
+ * One dot correction for everything.
+ */
+#define BUF_DC_MAX 0x3F
+#define BUF_DC_R   BUF_DC_MAX
+#define BUF_DC_G   0x12
+#define BUF_DC_B   0x12
+const char buf_dc__[3] = { BUF_DC_R, BUF_DC_G, BUF_DC_B };

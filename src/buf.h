@@ -1,7 +1,9 @@
 #pragma once
 
-extern char gg_buf_gs[512];
-extern char gg_buf_dc[3];
+extern volatile char buf_gs__[];
+extern const    char buf_dc__[];
 
+/*
+ * Nothing to do.
+ */
 #define buf_init()
-

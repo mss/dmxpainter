@@ -83,14 +83,15 @@ void dmx_exec(void)
 
 ///////////////////////////////
 
-enum {
+static enum state {
   STATE_IDLE,
   STATE_SYNC,
   STATE_WAIT,
   STATE_RECV,
   STATE_STOR
-} g_state;
-int16_t g_index;
+};
+static volatile enum state state_;
+static          int16_t index_;
 
 
 void dmx_int_timer0_ovf(void)
@@ -98,11 +99,10 @@ void dmx_int_timer0_ovf(void)
   // Disable this interrupt.
   disable_timer();
 
-  switch (g_state) {
+  switch (state_) {
     case STATE_SYNC: {
       // Line was low for 88 us, all is fine.
-      //mcu_debug_off();
-      g_state = STATE_WAIT;
+      state_ = STATE_WAIT;
       break;
     }
     case STATE_RECV:
@@ -110,7 +110,7 @@ void dmx_int_timer0_ovf(void)
       // We got a timeout, back to Idle.
       disable_usart();
       enable_trigger();
-      g_state = STATE_IDLE;
+      state_ = STATE_IDLE;
       break;
     }
     default: {
@@ -122,23 +122,20 @@ void dmx_int_timer0_ovf(void)
 
 void dmx_int_ext(void)
 {
-  switch (g_state) {
+  switch (state_) {
     case STATE_IDLE: {
       // Only trigger on fallen edge.
       if (!pin_is_set(PIN_DMX_RXD)) {
         // Wait for 88 us.
-        enable_timer(88);
-        mcu_debug_off();
-        //mcu_debug_on();
-        g_state = STATE_SYNC;
+        enable_timer(88);;
+        state_ = STATE_SYNC;
       }
       break;
     }
     case STATE_SYNC: {
       // Got a stray edge while Reset, back to Idle.
       disable_timer();
-      //mcu_debug_off();
-      g_state = STATE_IDLE;
+      state_ = STATE_IDLE;
       break;
     }
     case STATE_WAIT: {
@@ -146,8 +143,7 @@ void dmx_int_ext(void)
       // this interrupt.
       disable_trigger();
       enable_usart();
-            mcu_debug_on();      mcu_debug_off();
-      g_state = STATE_RECV;
+      state_ = STATE_RECV;
       break;
     }
     default: {
@@ -165,31 +161,28 @@ void dmx_int_usart_rxc(void)
   err = UCSRA & bits_value(FE);
   // Read data byte (and clear RXC flag).
   rxd = UDR;
-        
   if (err) {
-  mcu_debug_on();      mcu_debug_off();
     goto last;
   }
 
-  switch (g_state) {
+  switch (state_) {
     case STATE_RECV: {
-      // Check for valid start byte.
-      //if (rxd & (1 << 0)) { mcu_debug_on(); } else { mcu_debug_off(); }
+      // TODO: Check for valid start byte.
       /*if (rxd != 0x00) {
         goto last;
       }*/
-      
+
       // Switch to data storage.
-      g_index = 0;
-      g_state = STATE_STOR;
+      index_ = 0;
+      state_ = STATE_STOR;
       break;
     }
     case STATE_STOR: {
       // Write byte to buffer.
-      gg_buf_gs[g_index] = rxd;
+      buf_gs__[index_] = rxd;
       // Next index.
-      g_index++;
-      if (g_index == 512) {
+      index_++;
+      if (index_ == 512) {
         goto last;
       }
       break;
@@ -204,6 +197,6 @@ last:
   // Either an invalid or the last frame appeared, stop DMX.
   disable_usart();
   enable_trigger();
-  g_state = STATE_IDLE;
+  state_ = STATE_IDLE;
   return;
 }
