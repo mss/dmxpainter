@@ -182,6 +182,7 @@ void dmx_int_usart_rxc(void)
       buf_gs__[index_] = rxd;
       // Next index.
       index_++;
+      // TODO: Don't store more data than necessary.
       if (index_ == 512) {
         goto last;
       }
