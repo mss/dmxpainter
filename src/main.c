@@ -2,10 +2,10 @@
 
 #include "mcu.h"
 
+#include "buf.h"
+
 #include "dmx.h"
 #include "tlc.h"
-
-#include "buffer.h"
 
 
 // We require GCC 4.x for inlining and stuff.
@@ -42,7 +42,7 @@ void main_init(void)
   mcu_init();
 
   // Initialize buffer.
-  buffer_init();
+  buf_init();
 
   // Initialize peripherals.
   dmx_init();

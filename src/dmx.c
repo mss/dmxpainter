@@ -2,7 +2,7 @@
 
 #include "mcu.h"
 
-#include "buffer.h"
+#include "buf.h"
 
 
 void enable_timer(int8_t us)
@@ -186,7 +186,7 @@ void dmx_int_usart_rxc(void)
     }
     case STATE_STOR: {
       // Write byte to buffer.
-      gg_buffer_gs[g_index] = rxd;
+      gg_buf_gs[g_index] = rxd;
       // Next index.
       g_index++;
       if (g_index == 512) {

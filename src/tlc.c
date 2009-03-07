@@ -4,7 +4,7 @@
 
 #include "mcu.h"
 
-#include "buffer.h"
+#include "buf.h"
 
 /////////////////////////////////////////
 
@@ -190,7 +190,7 @@ void send_gs_data(void)
   // painter.
   // This will always point to the start of the current painter data, 
   // starting with the last one.
-  char * painter_gs = gg_buffer_gs
+  char * painter_gs = gg_buf_gs
                     + TLC_N_CHANNELS
                     - TLC_N_CHANNELS_PER_PAINTER;
   // Find the current data byte to shift out, starting with the last one.
@@ -220,7 +220,7 @@ void send_gs_data(void)
     }
 
     // Did we just finish the last (ie. first) painter?
-    if (painter_gs == gg_buffer_gs)
+    if (painter_gs == gg_buf_gs)
       break;
 
     // Move to next painter.
@@ -239,7 +239,7 @@ void send_dc_data(void)
   // values for each color.
   uint8_t dc_out[3][3];
   for (int8_t rgb = 2; rgb >= 0; rgb--) {
-    uint8_t dc_data = gg_buffer_dc[rgb] & bits_uint8(1, 1, 1, 1, 1, 1, 0, 0);
+    uint8_t dc_data = gg_buf_dc[rgb] & bits_uint8(1, 1, 1, 1, 1, 1, 0, 0);
     dc_out[rgb][2] = (dc_data << 0) | (dc_data >> 6);
     dc_out[rgb][1] = (dc_data << 2) | (dc_data >> 4);
     dc_out[rgb][0] = (dc_data << 4) | (dc_data >> 2);

@@ -1,6 +1,6 @@
-#include "buffer.h"
+#include "buf.h"
 
-char gg_buffer_gs[512] = {
+char gg_buf_gs[512] = {
   /* R     G     B */
    0xFF, 0xFF, 0xFF,  // 01
    0xFF, 0x00, 0xFF,  // 02
@@ -25,7 +25,7 @@ char gg_buffer_gs[512] = {
 
 #define DC(p) (char)(0x3F * ((char)p - 0) / 100)
 #define DC_RGB(r, g, b, x) { DC(r), DC(g), DC(b) }
-char gg_buffer_dc[3] = DC_RGB(
+char gg_buf_dc[3] = DC_RGB(
                           100,
                            30,
                            30,
@@ -46,12 +46,12 @@ void reset_counter(void)
   g_delay = 0;
 }
 
-void buffer_init(void)
+void buf_init(void)
 {
 #if 0
   #define BUFFER_INIT_KEEP 1
   #if BUFFER_INIT_KEEP == 0
-  memset(gg_buffer_gs, 0x00, sizeof(gg_buffer_gs));
+  memset(gg_buf_gs, 0x00, sizeof(gg_buf_gs));
   #endif
 
   for (uint8_t i = 0; i < (TLC_N_CHANNELS / TLC_N_TLCS_PER_PAINTER - BUFFER_INIT_KEEP); i++)
@@ -62,9 +62,9 @@ void buffer_init(void)
 }
 
 #if 0
-void buffer_next(void)
+void buf_next(void)
 {
-  char * foo = gg_buffer_gs + 15 * 3;
+  char * foo = gg_buf_gs + 15 * 3;
 
   //if (g_delay++ < 100000) return 0;
   //reset_counter();
@@ -76,7 +76,7 @@ void buffer_next(void)
   tlc_set_data_done();
 }
 
-void buffer_do(void)
+void buf_do(void)
 {
   g_rgb--;
 }
