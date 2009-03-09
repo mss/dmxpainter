@@ -6,7 +6,7 @@
 
 /*********************************************************************/
 
-void enable_timer(int8_t us)
+static void enable_timer(int8_t us)
 {
   // Prepare timer counter.
   TCNT0 = 0xFF - 2 * us;
@@ -15,32 +15,32 @@ void enable_timer(int8_t us)
   bits_mask_on(TCCR0, (1 << CS01));
 }
 
-void disable_timer(void)
+static void disable_timer(void)
 {
   // Disable timer (p72).
   bits_mask_off(TCCR0, (1 << CS02) | (1 << CS01) | (1 << CS00));
 }
 
 
-void enable_trigger(void)
+static void enable_trigger(void)
 {
   // Enable interrupt triggered by edge on pin.
   bits_on(GICR, INT0);
 }
 
-void disable_trigger(void)
+static void disable_trigger(void)
 {
   // Disable interrupt triggered by edge on pin.
   bits_off(GICR, INT0);
 }
 
-void enable_usart(void)
+static void enable_usart(void)
 {
   // Enable RXD.
   bits_on(UCSRB, RXEN);
 }
 
-void disable_usart(void)
+static void disable_usart(void)
 {
   // Disable RXD.
   bits_off(UCSRB, RXEN);
@@ -84,7 +84,7 @@ void dmx_exec(void)
 
 /*********************************************************************/
 
-static enum state {
+enum state {
   STATE_IDLE,
   STATE_SYNC,
   STATE_WAIT,

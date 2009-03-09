@@ -13,8 +13,8 @@ static volatile uint8_t data_available_;
 /*********************************************************************/
 
 static volatile uint8_t data_shifting_;
-void send_data(void);
-void start_gscycle(void);
+static void send_data(void);
+static void start_gscycle(void);
 void tlc_wait_for_data()
 {
   if (data_shifting_) return;
@@ -22,7 +22,7 @@ void tlc_wait_for_data()
   start_gscycle();
   // Continue in background...
 }
-void set_shifting_off(void)
+static void set_shifting_off(void)
 {
   data_shifting_ = 0;
 }
@@ -30,35 +30,35 @@ void set_shifting_off(void)
 /*********************************************************************/
 
 // XLAT pulse to apply data to internal register.
-void clock_xlat(void)
+static void clock_xlat(void)
 {
   pin_on(PIN_TLC_XLAT);
   pin_off(PIN_TLC_XLAT);
 }
 
 // SCLK pulse to clock in serial data from SIN.
-void clock_sclk(void)
+static void clock_sclk(void)
 {
   pin_on(PIN_TLC_SCLK);
   pin_off(PIN_TLC_SCLK);
 }
 
-void set_blnk_on(void)
+static void set_blnk_on(void)
 {
   pin_on(PIN_TLC_BLNK);
 }
 
-void set_blnk_off(void)
+static void set_blnk_off(void)
 {
   pin_off(PIN_TLC_BLNK);
 }
 
-void set_vprg_gs_mode(void)
+static void set_vprg_gs_mode(void)
 {
   pin_off(PIN_TLC_VPRG);
 }
 
-void set_vprg_dc_mode(void)
+static void set_vprg_dc_mode(void)
 {
   pin_on(PIN_TLC_VPRG);
 }
@@ -113,7 +113,7 @@ void tlc_set_data_done(void)
 
 /*********************************************************************/
 
-void start_gscycle(void)
+static void start_gscycle(void)
 {
   data_shifting_ = 1;
   // Start counter with next GS pulse.
@@ -151,7 +151,7 @@ void tlc_int_timer2_ocm(void)
 
 /*********************************************************************/
 
-void shift8(uint8_t byte)
+static void shift8(uint8_t byte)
 {
   // Shift out all eight bits.
   for (uint8_t bit = bits_uint8(1, 0, 0, 0, 0, 0, 0, 0); bit; bit >>= 1) {
@@ -164,7 +164,7 @@ void shift8(uint8_t byte)
   }
 }
 
-void shift12(uint8_t byte)
+static void shift12(uint8_t byte)
 {
   // The data in the upper 8 bits.
   shift8(byte);
@@ -178,7 +178,7 @@ void shift12(uint8_t byte)
 
 /*********************************************************************/
 
-void send_gs_data(void)
+static void send_gs_data(void)
 {
   // Set VPRG to GS mode.
   set_vprg_gs_mode();
@@ -228,7 +228,7 @@ void send_gs_data(void)
   }
 }
 
-void send_dc_data(void)
+static void send_dc_data(void)
 {
   // Set VPRG to DC mode. 
   set_vprg_dc_mode();  
@@ -263,7 +263,7 @@ void send_dc_data(void)
   } while (painter != 0);
 }
 
-void send_data(void)
+static void send_data(void)
 {
   // Always shift out DC first.
   send_dc_data();
@@ -277,6 +277,5 @@ void send_data(void)
 
   data_available_ = 0;
 }
-
 
 /*********************************************************************/
