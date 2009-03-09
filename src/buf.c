@@ -1,5 +1,8 @@
 #include "buf.h"
 
+/*********************************************************************/
+/* Declaration of public global variables.                           */
+
 /*
  * All channel greyscale data is initialized to zero.
  * TODO: Size should be based on N_PAINTER

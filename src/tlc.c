@@ -6,64 +6,72 @@
 
 #include "buf.h"
 
-/*********************************************************************/
 
+/*********************************************************************/
+/* Declaration of private global variables.                          */
+
+/**
+ * Flag to indicate that data is available for shifting.
+ */
 static volatile uint8_t data_available_;
+/**
+ * Flag to indicate that data is currently shifted out.
+ */
+static volatile uint8_t data_shifting_;
+
 
 /*********************************************************************/
+/* Declaration of private functions.                                 */
 
-static volatile uint8_t data_shifting_;
 static void send_data(void);
 static void start_gscycle(void);
-void tlc_wait_for_data()
-{
-  if (data_shifting_) return;
-  send_data();
-  start_gscycle();
-  // Continue in background...
-}
-static void set_shifting_off(void)
-{
-  data_shifting_ = 0;
-}
+
+static void set_shifting_off(void);
+static void clock_xlat(void);
+static void clock_sclk(void);
+static void set_blnk_on(void);
+static void set_blnk_off(void);
+static void set_vprg_gs_mode(void);
+static void set_vprg_dc_mode(void);
+
+static void send_data(void);
+
 
 /*********************************************************************/
+/* Implementation of public interrupts.                              */
 
-// XLAT pulse to apply data to internal register.
-static void clock_xlat(void)
+void tlc_int_timer1_ocma(void)
 {
-  pin_on(PIN_TLC_XLAT);
-  pin_off(PIN_TLC_XLAT);
+  // First, disable this interrupt.
+  mcu_int_timer1_ocma_disable();
+
+  // Restart and enable timeout timer.
+  mcu_set_timer2_cnt(0);
+  mcu_int_timer2_ocm_enable();
+
+  // Switch off BLNK.
+  set_blnk_off();
+  // Hack: Switch on GSCLK
+  pin_out(PIN_TLC_GSCK);
 }
 
-// SCLK pulse to clock in serial data from SIN.
-static void clock_sclk(void)
+void tlc_int_timer2_ocm(void)
 {
-  pin_on(PIN_TLC_SCLK);
-  pin_off(PIN_TLC_SCLK);
+  // Hack: Switch off GSCLK
+  pin_in(PIN_TLC_GSCK);
+  // Go into BLNK mode (switch off LEDs and reset GSCLK counter)
+  set_blnk_on();
+
+  // Disable GS cycle timeout timer.
+  mcu_int_timer2_ocm_disable();
+
+  // Wait for next DMX packet.
+  set_shifting_off();
 }
 
-static void set_blnk_on(void)
-{
-  pin_on(PIN_TLC_BLNK);
-}
-
-static void set_blnk_off(void)
-{
-  pin_off(PIN_TLC_BLNK);
-}
-
-static void set_vprg_gs_mode(void)
-{
-  pin_off(PIN_TLC_VPRG);
-}
-
-static void set_vprg_dc_mode(void)
-{
-  pin_on(PIN_TLC_VPRG);
-}
 
 /*********************************************************************/
+/* Implementation of public functions.                               */
 
 void tlc_init(void)
 {
@@ -111,6 +119,57 @@ void tlc_set_data_done(void)
   data_available_ = 1;
 }
 
+void tlc_wait_for_data()
+{
+  if (data_shifting_) return;
+  send_data();
+  start_gscycle();
+  // Continue in background...
+}
+
+
+/*********************************************************************/
+/* Implementation of private functions.                              */
+
+static void set_shifting_off(void)
+{
+  data_shifting_ = 0;
+}
+
+// XLAT pulse to apply data to internal register.
+static void clock_xlat(void)
+{
+  pin_on(PIN_TLC_XLAT);
+  pin_off(PIN_TLC_XLAT);
+}
+
+// SCLK pulse to clock in serial data from SIN.
+static void clock_sclk(void)
+{
+  pin_on(PIN_TLC_SCLK);
+  pin_off(PIN_TLC_SCLK);
+}
+
+static void set_blnk_on(void)
+{
+  pin_on(PIN_TLC_BLNK);
+}
+
+static void set_blnk_off(void)
+{
+  pin_off(PIN_TLC_BLNK);
+}
+
+static void set_vprg_gs_mode(void)
+{
+  pin_off(PIN_TLC_VPRG);
+}
+
+static void set_vprg_dc_mode(void)
+{
+  pin_on(PIN_TLC_VPRG);
+}
+
 /*********************************************************************/
 
 static void start_gscycle(void)
@@ -118,35 +177,6 @@ static void start_gscycle(void)
   data_shifting_ = 1;
   // Start counter with next GS pulse.
   mcu_int_timer1_ocma_enable();
-}
-
-void tlc_int_timer1_ocma(void)
-{
-  // First, disable this interrupt.
-  mcu_int_timer1_ocma_disable();
-
-  // Restart and enable timeout timer.
-  mcu_set_timer2_cnt(0);
-  mcu_int_timer2_ocm_enable();
-
-  // Switch off BLNK.
-  set_blnk_off();
-  // Hack: Switch on GSCLK
-  pin_out(PIN_TLC_GSCK);
-}
-
-void tlc_int_timer2_ocm(void)
-{
-  // Hack: Switch off GSCLK
-  pin_in(PIN_TLC_GSCK);
-  // Go into BLNK mode (switch off LEDs and reset GSCLK counter)
-  set_blnk_on();
-
-  // Disable GS cycle timeout timer.
-  mcu_int_timer2_ocm_disable();
-
-  // Wait for next DMX packet.
-  set_shifting_off();
 }
 
 /*********************************************************************/
@@ -231,7 +261,7 @@ static void send_gs_data(void)
 static void send_dc_data(void)
 {
   // Set VPRG to DC mode. 
-  set_vprg_dc_mode();  
+  set_vprg_dc_mode();
 
   // All TLCs on all the connected painters will get the same DC value.
   // That makes it easy to generate the 6-Bit format we need:  We just
