@@ -7,6 +7,9 @@
 /*********************************************************************/
 /* Declaration of private global variables.                          */
 
+/**
+ * The DMX parser is driven by a state machine using these states.
+ */
 enum state {
   STATE_IDLE,
   STATE_SYNC,
@@ -14,7 +17,13 @@ enum state {
   STATE_RECV,
   STATE_STOR
 };
+/**
+ * The current state of the DMX state machine.
+ */
 static volatile enum state state_;
+/**
+ * Index of current DMX frame (between 0 and 512).
+ */
 static          int16_t index_;
 
 
