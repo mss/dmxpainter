@@ -35,7 +35,7 @@ mcu_register_isr(TIMER2_COMP);
 /**
  * 
  */
-void main_init(void)
+static inline void main_init(void)
 {
   // Disable interrupts while initializing.
   cli();
@@ -55,7 +55,7 @@ void main_init(void)
 /**
  *
  */
-void main_exec(void)
+static inline void main_exec(void)
 {
   // Signal that we're running.
   pin_on(PIN_LED_ON);
@@ -67,7 +67,7 @@ void main_exec(void)
 /**
  *
  */
-void main_loop(void)
+static inline void main_loop(void)
 {
   // Forever...
   while (1) {
