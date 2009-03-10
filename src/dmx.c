@@ -54,7 +54,7 @@ static void disable_usart(void);
 #define DMX_CHAR_TIME    (DMX_BIT_TIME * (8 + 3))
 #define DMX_CHAR_TIMEOUT (DMX_CHAR_TIME * 2)
 
-void dmx_int_ext(void)
+void dmx_int_ext_edge(void)
 {
   switch (state_) {
     case STATE_IDLE: {

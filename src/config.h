@@ -21,7 +21,7 @@
 #define INT_TIMER2_COMP  tlc_int_timer2_ocm
 
 #define INT_TIMER0_OVF   dmx_int_timer_ovf
-#define INT_INT0         dmx_int_ext
+#define INT_INT0         dmx_int_ext_edge
 #define INT_USART_RXC    dmx_int_usart_rxc
 
 #define PIN_DEBUG     PIN_14
