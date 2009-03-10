@@ -72,6 +72,7 @@ static inline void main_loop(void)
   // Forever...
   while (1) {
     // FIXME
+    // TODO: Don't store more data than necessary.
     tlc_set_data_done();
     tlc_wait_for_data();
   }

@@ -24,7 +24,12 @@ static volatile enum state state_;
 /**
  * Index of current DMX frame (between 0 and 512).
  */
-static          int16_t index_;
+static volatile int16_t index_;
+
+/**
+ * Current timer start value in case we want to reset.
+ */
+static volatile uint8_t timer_;
 
 
 /*********************************************************************/
@@ -32,14 +37,22 @@ static          int16_t index_;
 
 static void enable_timer(int8_t us);
 static void disable_timer(void);
+static void reset_timer(void);
+
 static void enable_trigger(void);
 static void disable_trigger(void);
+
 static void enable_usart(void);
 static void disable_usart(void);
 
 
 /*********************************************************************/
 /* Implementation of public interrupts.                              */
+
+#define DMX_RESET_TIME   88
+#define DMX_BIT_TIME     4
+#define DMX_CHAR_TIME    (DMX_BIT_TIME * (8 + 3))
+#define DMX_CHAR_TIMEOUT (DMX_CHAR_TIME * 2)
 
 void dmx_int_timer0_ovf(void)
 {
@@ -54,7 +67,7 @@ void dmx_int_timer0_ovf(void)
     }
     case STATE_RECV:
     case STATE_STOR: {
-    // We got a timeout, back to Idle.
+      // We got a timeout, back to Idle.
       disable_usart();
       enable_trigger();
       state_ = STATE_IDLE;
@@ -72,8 +85,8 @@ void dmx_int_ext(void)
     case STATE_IDLE: {
       // Only trigger on fallen edge.
       if (!pin_is_set(PIN_DMX_RXD)) {
-        // Wait for 88 us.
-        enable_timer(88);;
+        // Wait for a Reset of 88 us (or more).
+        enable_timer(DMX_RESET_TIME);
         state_ = STATE_SYNC;
       }
       break;
@@ -85,10 +98,11 @@ void dmx_int_ext(void)
       break;
     }
     case STATE_WAIT: {
-      // This edge is the Mark, start the USART and disable
-      // this interrupt.
+      // This edge is the Mark, disable this interrupt...
       disable_trigger();
+      // ... and start the USART and the timeout.
       enable_usart();
+      enable_timer(DMX_CHAR_TIMEOUT);
       state_ = STATE_RECV;
       break;
     }
@@ -107,16 +121,20 @@ void dmx_int_usart_rxc(void)
   err = UCSRA & bits_value(FE);
   // Read data byte (and clear RXC flag).
   rxd = UDR;
+  // Bail out if start or stop bit was wrong.
   if (err) {
-    goto last;
+    goto finally;
   }
+
+  // Reset timeout.
+  reset_timer();
 
   switch (state_) {
     case STATE_RECV: {
-      // TODO: Check for valid start byte.
-      /*if (rxd != 0x00) {
-      goto last;
-    }*/
+      // Bail out if the start byte is not all low.
+      if (rxd != 0x00) {
+        goto finally;
+      }
 
       // Switch to data storage.
       index_ = 0;
@@ -126,26 +144,28 @@ void dmx_int_usart_rxc(void)
     case STATE_STOR: {
       // Write byte to buffer.
       buf_gs__[index_] = rxd;
+      // Jump out once we received all 512 channels.
+      if (index_ == 511) {
+        goto finally;
+      }
       // Next index.
       index_++;
-      // TODO: Don't store more data than necessary.
-      if (index_ == 512) {
-        goto last;
-      }
       break;
     }
     default: {
       break;
     }
   }
+  return;
 
-  return;
-last:
-  // Either an invalid or the last frame appeared, stop DMX.
+finally: {
+    // Either an invalid or the last frame appeared, stop DMX.
+    disable_timer();
     disable_usart();
-  enable_trigger();
-  state_ = STATE_IDLE;
-  return;
+    enable_trigger();
+    state_ = STATE_IDLE;
+    return;
+  }
 }
 
 
@@ -193,7 +213,8 @@ void dmx_exec(void)
 static void enable_timer(int8_t us)
 {
   // Prepare timer counter.
-  TCNT0 = 0xFF - 2 * us;
+  timer_ = 0xFF - 2 * us;
+  reset_timer();
 
   // Enable timer, use a frequency prescaler of 8 (p72).
   bits_mask_on(TCCR0, (1 << CS01));
@@ -203,6 +224,11 @@ static void disable_timer(void)
 {
   // Disable timer (p72).
   bits_mask_off(TCCR0, (1 << CS02) | (1 << CS01) | (1 << CS00));
+}
+
+static void reset_timer()
+{
+  TCNT0 = timer_;
 }
 
 
@@ -220,6 +246,7 @@ static void disable_trigger(void)
 
 static void enable_usart(void)
 {
+
   // Enable RXD.
   bits_on(UCSRB, RXEN);
 }
