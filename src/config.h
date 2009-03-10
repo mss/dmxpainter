@@ -20,7 +20,7 @@
 #define INT_TIMER1_COMPA tlc_int_timer1_ocma
 #define INT_TIMER2_COMP  tlc_int_timer2_ocm
 
-#define INT_TIMER0_OVF   dmx_int_timer0_ovf
+#define INT_TIMER0_OVF   dmx_int_timer_ovf
 #define INT_INT0         dmx_int_ext
 #define INT_USART_RXC    dmx_int_usart_rxc
 

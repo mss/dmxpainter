@@ -54,31 +54,6 @@ static void disable_usart(void);
 #define DMX_CHAR_TIME    (DMX_BIT_TIME * (8 + 3))
 #define DMX_CHAR_TIMEOUT (DMX_CHAR_TIME * 2)
 
-void dmx_int_timer0_ovf(void)
-{
-  // Disable this interrupt.
-  disable_timer();
-
-  switch (state_) {
-    case STATE_SYNC: {
-      // Line was low for 88 us, all is fine.
-      state_ = STATE_WAIT;
-      break;
-    }
-    case STATE_RECV:
-    case STATE_STOR: {
-      // We got a timeout, back to Idle.
-      disable_usart();
-      enable_trigger();
-      state_ = STATE_IDLE;
-      break;
-    }
-    default: {
-      break;
-    }
-  }
-}
-
 void dmx_int_ext(void)
 {
   switch (state_) {
@@ -104,6 +79,31 @@ void dmx_int_ext(void)
       enable_usart();
       enable_timer(DMX_CHAR_TIMEOUT);
       state_ = STATE_RECV;
+      break;
+    }
+    default: {
+      break;
+    }
+  }
+}
+
+void dmx_int_timer_ovf(void)
+{
+  // Disable this interrupt.
+  disable_timer();
+
+  switch (state_) {
+    case STATE_SYNC: {
+      // Line was low for 88 us, all is fine.
+      state_ = STATE_WAIT;
+      break;
+    }
+    case STATE_RECV:
+    case STATE_STOR: {
+      // We got a timeout, back to Idle.
+      disable_usart();
+      enable_trigger();
+      state_ = STATE_IDLE;
       break;
     }
     default: {
