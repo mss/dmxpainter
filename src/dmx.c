@@ -47,12 +47,16 @@ static void disable_usart(void);
 
 
 /*********************************************************************/
-/* Implementation of public interrupts.                              */
+/* Declaration of private constants.                                 */
 
 #define DMX_RESET_TIME   88
 #define DMX_BIT_TIME     4
 #define DMX_CHAR_TIME    (DMX_BIT_TIME * (8 + 3))
 #define DMX_CHAR_TIMEOUT (DMX_CHAR_TIME * 2)
+
+
+/*********************************************************************/
+/* Implementation of public interrupts.                              */
 
 void dmx_int_ext_edge(void)
 {
