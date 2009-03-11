@@ -34,9 +34,9 @@
 
 #ifdef PIN_DEBUG
 #define mcu_init() pin_out(PIN_DEBUG)
-volatile uint8_t gg_mcu_debug;
-#define mcu_debug_set(v) do { gg_mcu_debug = v; if (v) { pin_on(PIN_DEBUG); } else { pin_off(PIN_DEBUG); } } while (0)
-#define mcu_debug()      mcu_debug_set(~gg_mcu_debug)
+volatile uint8_t mcu_debug__;
+#define mcu_debug_set(v) do { mcu_debug__ = v; if (v) { pin_on(PIN_DEBUG); } else { pin_off(PIN_DEBUG); } } while (0)
+#define mcu_debug()      mcu_debug_set(~mcu_debug__)
 #else
 #define mcu_init()
 #define mcu_debug_set(v)
