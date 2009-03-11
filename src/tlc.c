@@ -22,10 +22,6 @@
 /* Declaration of private global variables.                          */
 
 /**
- * Flag to indicate that data is available for shifting.
- */
-static volatile uint8_t data_available_;
-/**
  * Flag to indicate that data is currently shifted out.
  */
 static volatile uint8_t data_shifting_;
@@ -123,11 +119,6 @@ void tlc_init(void)
 
   // Here we could read the return from the painter.
   pin_in( PIN_TLC_SRTN);
-}
-
-void tlc_set_data_done(void)
-{
-  data_available_ = 1;
 }
 
 void tlc_wait_for_data()
@@ -315,8 +306,6 @@ static void send_data(void)
   clock_xlat();
 
   clock_sclk();
-
-  data_available_ = 0;
 }
 
 /*********************************************************************/
