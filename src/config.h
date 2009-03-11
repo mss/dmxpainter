@@ -25,3 +25,4 @@
 #define INT_USART_RXC    dmx_int_usart_rxc
 
 #define PIN_DEBUG     PIN_14
+#define REG_DEBUG     EEARH
