@@ -121,7 +121,7 @@ void tlc_init(void)
   pin_in( PIN_TLC_SRTN);
 }
 
-void tlc_wait_for_data()
+void tlc_send_data(void)
 {
   if (data_shifting_) return;
   send_data();

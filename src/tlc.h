@@ -2,4 +2,4 @@
 
 void tlc_init(void);
 
-void tlc_wait_for_data(void);
+void tlc_send_data(void);
