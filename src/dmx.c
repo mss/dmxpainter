@@ -31,6 +31,11 @@ static volatile int16_t index_;
  */
 static volatile uint8_t timer_;
 
+/**
+ * Error flag, set on error, cleared after next start byte.
+ */
+static volatile uint8_t error_;
+
 
 /*********************************************************************/
 /* Declaration of private functions.                                 */
@@ -90,6 +95,7 @@ void dmx_int_ext_edge(void)
   return;
 
 err: {
+    error_ = 1;
     disable_timer();
     state_ = STATE_IDLE;
     return;
@@ -118,6 +124,7 @@ void dmx_int_timer_ovf(void)
   return;
 
 err: {
+    error_ = 1;
     disable_usart();
     enable_trigger();
     state_ = STATE_IDLE;
@@ -150,6 +157,9 @@ void dmx_int_usart_rxc(void)
         goto err;
       }
 
+      // Clear error flag.
+      error_ = 0; 
+
       // Switch to data storage.
       index_ = 0;
       state_ = STATE_STOR;
@@ -161,7 +171,7 @@ void dmx_int_usart_rxc(void)
       buf_gs__[index_] = rxd;
       // Jump out once we received all 512 channels.
       if (index_ == 511) {
-        goto out;
+        goto end;
       }
       // Next index.
       index_++;
@@ -173,8 +183,9 @@ void dmx_int_usart_rxc(void)
   return;
 
 err:
-  
-out: {
+  error_ = 1;
+  // Resume with default end procedure.
+end: {
     // Either an invalid or the last frame appeared, stop DMX.
     disable_timer();
     disable_usart();
