@@ -1,7 +1,7 @@
 #pragma once
 
 #ifndef N_PAINTER
-#define N_PAINTER 1
+#define N_PAINTER 8
 #endif
 
 #define PIN_TLC_GSCK  PIN_15
