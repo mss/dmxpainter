@@ -52,6 +52,10 @@ static void send_gs_data(void);
 /*********************************************************************/
 /* Implementation of public interrupts.                              */
 
+/**
+ * Handler for Output-Compare-Match interrupt on 16-bit timer:
+ * Syncs on GSCLK to start GS cycle.
+ */
 void tlc_int_timer1_ocma(void)
 {
   // First, disable this interrupt.
@@ -61,16 +65,16 @@ void tlc_int_timer1_ocma(void)
   mcu_set_timer2_cnt(0);
   mcu_int_timer2_ocm_enable();
 
-  // Switch off BLNK.
+  // Leave BLNK mode (switch on LEDs and start GS cycle).
   set_blnk_off();
-  // Hack: Switch on GSCLK
-  pin_out(PIN_TLC_GSCK);
 }
 
+/**
+ * Handler for Output-Compare-Match interrupt on 8-bit timer:
+ * Disables PWM when a full GSCK cycle is done.
+ */
 void tlc_int_timer2_ocm(void)
 {
-  // Hack: Switch off GSCLK
-  pin_in(PIN_TLC_GSCK);
   // Go into BLNK mode (switch off LEDs and reset GSCLK counter)
   set_blnk_on();
 
