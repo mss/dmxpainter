@@ -58,8 +58,8 @@ static inline void main_init(void)
 static inline void main_exec(void)
 {
   // Signal that we're running.
+  pin_out(PIN_LED_ON);
   pin_on(PIN_LED_ON);
-
   // Start DMX processing.
   dmx_exec();
 }
