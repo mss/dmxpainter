@@ -61,6 +61,7 @@ static void disable_usart(void);
 void dmx_int_ext_edge(void)
 {
   switch (state_) {
+    // The line might be pulled low in Idle.
     case STATE_IDLE: {
       // Only trigger on fallen edge.
       if (!pin_is_set(PIN_DMX_RXD)) {
@@ -68,26 +69,30 @@ void dmx_int_ext_edge(void)
         enable_timer(DMX_RESET_TIME);
         state_ = STATE_SYNC;
       }
-      break;
-    }
-    case STATE_SYNC: {
-      // Got a stray edge while Reset, back to Idle.
-      disable_timer();
-      state_ = STATE_IDLE;
-      break;
-    }
+    } break;
+
+    // Got a stray edge while Reset, back to Idle.
+    case STATE_SYNC: goto err;
+
+    // The next rising edge is the Mark.
     case STATE_WAIT: {
-      // This edge is the Mark, disable this interrupt...
+      // Disable this interrupt...
       disable_trigger();
       // ... and start the USART and the timeout.
       enable_usart();
       enable_timer(DMX_CHAR_TIMEOUT);
       state_ = STATE_RECV;
-      break;
-    }
-    default: {
-      break;
-    }
+    } break;
+
+    // Ignore edge in all other states.
+    default: break;
+  }
+  return;
+
+err: {
+    disable_timer();
+    state_ = STATE_IDLE;
+    return;
   }
 }
 
@@ -97,22 +102,26 @@ void dmx_int_timer_ovf(void)
   disable_timer();
 
   switch (state_) {
+    // Line was low long enough for a Reset.
     case STATE_SYNC: {
-      // Line was low for 88 us, all is fine.
+      // All is fine.
       state_ = STATE_WAIT;
-      break;
-    }
-    case STATE_RECV:
-    case STATE_STOR: {
-      // We got a timeout, back to Idle.
-      disable_usart();
-      enable_trigger();
-      state_ = STATE_IDLE;
-      break;
-    }
-    default: {
-      break;
-    }
+    } break;
+
+    // We got a timeout, back to Idle.
+    case STATE_RECV: goto err;
+    case STATE_STOR: goto err;
+
+    // Ignore timer in all other states.
+    default: break;
+  }
+  return;
+
+err: {
+    disable_usart();
+    enable_trigger();
+    state_ = STATE_IDLE;
+    return;
   }
 }
 
@@ -127,42 +136,45 @@ void dmx_int_usart_rxc(void)
   rxd = UDR;
   // Bail out if start or stop bit was wrong.
   if (err) {
-    goto finally;
+    goto err;
   }
 
   // Reset timeout.
   reset_timer();
 
   switch (state_) {
+    // The first byte is the start byte.
     case STATE_RECV: {
       // Bail out if the start byte is not all low.
       if (rxd != 0x00) {
-        goto finally;
+        goto err;
       }
 
       // Switch to data storage.
       index_ = 0;
       state_ = STATE_STOR;
-      break;
-    }
+    } break;
+
+    // All following bytes are stored as channel data.
     case STATE_STOR: {
       // Write byte to buffer.
       buf_gs__[index_] = rxd;
       // Jump out once we received all 512 channels.
       if (index_ == 511) {
-        goto finally;
+        goto out;
       }
       // Next index.
       index_++;
-      break;
-    }
-    default: {
-      break;
-    }
+    } break;
+
+    // In all other states we shouldn't trigger anyway.
+    default: break;
   }
   return;
 
-finally: {
+err:
+  
+out: {
     // Either an invalid or the last frame appeared, stop DMX.
     disable_timer();
     disable_usart();
