@@ -60,6 +60,10 @@ static inline void main_exec(void)
   // Signal that we're running.
   pin_out(PIN_LED_ON);
   pin_on(PIN_LED_ON);
+
+  // Start TLC.
+  tlc_exec();
+
   // Start DMX processing.
   dmx_exec();
 }
@@ -73,7 +77,7 @@ static inline void main_loop(void)
   while (1) {
     // FIXME
     // TODO: Don't store more data than necessary.
-    tlc_send_data();
+    tlc_update();
   }
 }
 

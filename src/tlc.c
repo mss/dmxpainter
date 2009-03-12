@@ -17,6 +17,8 @@
 
 #define TLC_N_CHANNELS (N_PAINTER * TLC_N_CHANNELS_PER_PAINTER)
 
+//#define TLC_DC_ONCE
+
 
 /*********************************************************************/
 /* Declaration of private global variables.                          */
@@ -42,6 +44,9 @@ static void set_vprg_gs_mode(void);
 static void set_vprg_dc_mode(void);
 
 static void send_data(void);
+
+static void send_dc_data(void);
+static void send_gs_data(void);
 
 
 /*********************************************************************/
@@ -121,12 +126,35 @@ void tlc_init(void)
   pin_in( PIN_TLC_SRTN);
 }
 
-void tlc_send_data(void)
+void tlc_exec(void)
 {
+  // If enabled, shift out DC once.
+  #ifdef TLC_DC_ONCE
+    send_dc_data();
+    clock_xlat();
+  #endif
+}
+
+void tlc_update(void)
+{
+  // Don't send anything if PWM is still active.
   if (data_shifting_) return;
-  send_data();
+
+  // If not disabled, always shift out DC first.
+  #ifndef TLC_DC_ONCE
+    send_dc_data();
+    clock_xlat();
+  #endif
+
+  // No extra SCLK needed, just shift out all GS data.
+  send_gs_data();
+  clock_xlat();
+
+  // A final SCLK to notify 
+  clock_sclk();
+
+  // Start PWM and continue in background...
   start_gscycle();
-  // Continue in background...
 }
 
 
@@ -297,15 +325,7 @@ static void send_dc_data(void)
 
 static void send_data(void)
 {
-  // Always shift out DC first.
-  send_dc_data();
-  clock_xlat();
 
-  // No extra SCLK needed, just shift out all GS data.
-  send_gs_data();
-  clock_xlat();
-
-  clock_sclk();
 }
 
 /*********************************************************************/
