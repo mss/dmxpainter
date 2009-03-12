@@ -17,7 +17,7 @@
 
 #define TLC_N_CHANNELS (N_PAINTER * TLC_N_CHANNELS_PER_PAINTER)
 
-//#define TLC_DC_ONCE
+#define TLC_DC_ONCE
 
 
 /*********************************************************************/
@@ -32,7 +32,6 @@ static volatile uint8_t data_shifting_;
 /*********************************************************************/
 /* Declaration of private functions.                                 */
 
-static void send_data(void);
 static void start_gscycle(void);
 
 static void set_shifting_off(void);
@@ -42,8 +41,6 @@ static void set_blnk_on(void);
 static void set_blnk_off(void);
 static void set_vprg_gs_mode(void);
 static void set_vprg_dc_mode(void);
-
-static void send_data(void);
 
 static void send_dc_data(void);
 static void send_gs_data(void);
@@ -60,10 +57,6 @@ void tlc_int_timer1_ocma(void)
 {
   // First, disable this interrupt.
   mcu_int_timer1_ocma_disable();
-
-  // Restart and enable timeout timer.
-  mcu_set_timer2_cnt(0);
-  mcu_int_timer2_ocm_enable();
 
   // Leave BLNK mode (switch on LEDs and start GS cycle).
   set_blnk_off();
@@ -91,26 +84,37 @@ void tlc_int_timer2_ocm(void)
 
 void tlc_init(void)
 {
+  // We have to use the 16-bit timer for the GSCLK and the 8-bit
+  // timer for the timeout even though it would be better the other
+  // way round:  We need the OC2 pin for SPI and thus can generate 
+  // a PWM on OC1 (A or B doesn't really matter) only.
+
   // Timer 1 is for our GSCLK:  We refresh with a GS cycle of
   // about 100 Hz (cf. Timer 2), for each full cycle we need to
-  // clock the PWM 4096 times.
+  // clock the PWM 4096 times but have to consider the time it
+  // takes to shift out the data.
   // We need about 38 clocks to get 4096 cycles at 100 Hz.
+  // FIXME: No we don't.
   mcu_set_timer1_ic(38);
-  // 50% duty cycle.
+  // Duty cycle as short as possible.
   mcu_set_timer1_ocma(1);
-  // * CS1 = 0001:  No prescaler. (p100)
-  // * WGM1 = 1110: Fast PWM, TOP at ICR1
-  // * COM1A = 10: Set at 0, clear at Output Compare Match)
+  // * WGM1  = 1110: Fast PWM, TOP at ICR1 (p89)
+  // * COM1A =   10: Set at 0, clear at Output Compare Match
+  // * CS1   = 0001: No prescaler. (p100)
   TCCR1B = bits_value(CS10) | bits_value(WGM13) | bits_value(WGM12);
   TCCR1A = bits_value(WGM11) | bits_value(COM1A1);
 
-  /* Timer 2: Refresh-Timer */
-  // * AS2 = 0: Use IO-clock (16 MHz) for base frequency (p119)
-  // * Mode: Normal mode, no PWM, count upwards (WGM21:0 = 00) (p117)
-  // * Disable Output on OC2, needed for SPI (COM21:0 = 00) (p117)
-  // * Prescaler: 1024 (CS22:0 = 111) => 15625 Hz
+  // Timer 2 is the refresh timer which determines the time one GS
+  // cycle is finished; triggers Output Compare Match.
+  // * AS2  =   0: Use IO-clock (16 MHz) for base frequency (p119)
+  // * WGM2 =  00: Normal mode, no PWM, count upwards (p117)
+  // * COM2 =  00: Disable Output on OC2, needed for SPI (p117)
+  // * CS2  = 111: Use a prescaler of 1024 (p119)
   TCCR2 = bits_value(CS22) | bits_value(CS21) | bits_value(CS20);
-  // To get a 100 Hz clock we need to count 157 times (~ 99.5 Hz).
+  // With a prescaler of 1024 this timer counts at 15.625 kHz,
+  // to get a 100 Hz clock we need to count 157 times (~ 99.5 Hz)
+  // and refresh after that:
+  // n = ceil((16 MHz / 1024) / 100 Hz)
   mcu_set_timer2_ocm(156);
 
   // All these pins write to the painter.
@@ -143,6 +147,11 @@ void tlc_update(void)
 {
   // Don't send anything if PWM is still active.
   if (data_shifting_) return;
+
+  // Restart and enable 100 Hz-timeout timer now so
+  // it includes the time we need to shift out data.
+  mcu_set_timer2_cnt(0);
+  mcu_int_timer2_ocm_enable();
 
   // If not disabled, always shift out DC first.
   #ifndef TLC_DC_ONCE
@@ -325,11 +334,6 @@ static void send_dc_data(void)
     } while (rgb != -1);
     painter--;
   } while (painter != 0);
-}
-
-static void send_data(void)
-{
-
 }
 
 /*********************************************************************/
