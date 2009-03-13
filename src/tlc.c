@@ -87,7 +87,8 @@ void tlc_init(void)
   // We have to use the 16-bit timer for the GSCLK and the 8-bit
   // timer for the timeout even though it would be better the other
   // way round:  We need the OC2 pin for SPI and thus can generate 
-  // a PWM on OC1 (A or B doesn't really matter) only.
+  // a PWM on OC1A (A because it can use ICR1 for TOP, p85) only.
+  // Do this setup before enabling the output (p86).
 
   // Timer 1 is for our GSCLK:  We refresh with a GS cycle of
   // about 100 Hz (cf. Timer 2), for each full cycle we need to
@@ -98,7 +99,7 @@ void tlc_init(void)
   mcu_set_timer1_ic(38);
   // Duty cycle as short as possible (see COM1A below).
   mcu_set_timer1_ocma(1);
-  // * CS1   = 0001: No prescaler. (p100)
+  // * CS1   =  001: No prescaler. (p100)
   // * WGM1  = 1110: Fast PWM, TOP at ICR1 (p78, p89, p98)
   // * COM1A =   10: Set OC1A at 0, clear at OCM1A (p97)
   // * COM1B =   00: No output on OC1B (p97)
