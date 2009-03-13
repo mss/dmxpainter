@@ -213,7 +213,8 @@ void dmx_init(void)
   UBRRL = F_CPU / (16 * 250e3) - 1;
   UBRRH = (0 << URSEL) | 0;
   UCSRC = (1 << URSEL)
-        | bits_value(UCSZ1) | bits_value(UCSZ0)
+        | bits_value_indexed(UCSZ, 1)
+        | bits_value_indexed(UCSZ, 0)
         | bits_value(USBS);
   // Enable USART RXD interrupt (and clear UCSZ2 and *XEN).
   UCSRB = bits_value(RXCIE);

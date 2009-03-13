@@ -22,6 +22,7 @@
 
 // A nicer name for a useful macor.
 #define bits_value(v) _BV(v)
+#define bits_value_indexed(v, i) bits_value(v ## i)
 
 // Set and clear a single bit.
 #define bits_on(var, bit)  bits_mask_on( var, bits_value(bit))

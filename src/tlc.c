@@ -106,11 +106,11 @@ void tlc_init(void)
   // * WGM1  = 1110: Fast PWM, TOP at ICR1 (p78, p89, p98)
   // * COM1A =   10: Set OC1A at 0, clear at OCM1A (p97)
   // * COM1B =   00: No output on OC1B (p97)
-  TCCR1B = bits_value(CS10)
-         | bits_value(WGM13)
-         | bits_value(WGM12);
-  TCCR1A = bits_value(WGM11)
-         | bits_value(COM1A1);
+  TCCR1B = bits_value_indexed(CS1, 0)
+         | bits_value_indexed(WGM1, 3)
+         | bits_value_indexed(WGM1, 2);
+  TCCR1A = bits_value_indexed(WGM1, 1)
+         | bits_value_indexed(COM1A, 1);
 
   // Timer 2 is the refresh timer which determines the time one GS
   // cycle is finished; triggers Output Compare Match.
@@ -118,9 +118,9 @@ void tlc_init(void)
   // * CS2  = 111: Use a prescaler of 1024 (p119)
   // * WGM2 =  00: Normal mode, no PWM, count upwards (p117)
   // * COM2 =  00: Disable Output on OC2, needed for SPI (p117)
-  TCCR2 = bits_value(CS22)
-        | bits_value(CS21)
-        | bits_value(CS20);
+  TCCR2 = bits_value_indexed(CS2, 2)
+        | bits_value_indexed(CS2, 1)
+        | bits_value_indexed(CS2, 0);
   // With a prescaler of 1024 this timer counts at 15.625 kHz,
   // to get a 100 Hz clock we need to count 157 times (~ 99.5 Hz)
   // and refresh after that (that equals to 4 PWM pulses when
