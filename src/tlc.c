@@ -156,6 +156,10 @@ void tlc_exec(void)
 
 void tlc_update(void)
 {
+  // TODO: Make this routine iterative.
+  // TODO: Is it possible to shift while GS cycle is active and 
+  //       XLAT when cycle is done?
+
   // Don't send anything if PWM is still active.
   if (data_shifting_) return;
 
