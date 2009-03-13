@@ -96,20 +96,21 @@ void tlc_init(void)
   // We need about 38 clocks to get 4096 cycles at 100 Hz.
   // FIXME: No we don't.
   mcu_set_timer1_ic(38);
-  // Duty cycle as short as possible.
+  // Duty cycle as short as possible (see COM1A below).
   mcu_set_timer1_ocma(1);
-  // * WGM1  = 1110: Fast PWM, TOP at ICR1 (p89)
-  // * COM1A =   10: Set at 0, clear at Output Compare Match
   // * CS1   = 0001: No prescaler. (p100)
+  // * WGM1  = 1110: Fast PWM, TOP at ICR1 (p78, p89, p98)
+  // * COM1A =   10: Set OC1A at 0, clear at OCM1A (p97)
+  // * COM1B =   00: No output on OC1B (p97)
   TCCR1B = bits_value(CS10) | bits_value(WGM13) | bits_value(WGM12);
   TCCR1A = bits_value(WGM11) | bits_value(COM1A1);
 
   // Timer 2 is the refresh timer which determines the time one GS
   // cycle is finished; triggers Output Compare Match.
   // * AS2  =   0: Use IO-clock (16 MHz) for base frequency (p119)
+  // * CS2  = 111: Use a prescaler of 1024 (p119)
   // * WGM2 =  00: Normal mode, no PWM, count upwards (p117)
   // * COM2 =  00: Disable Output on OC2, needed for SPI (p117)
-  // * CS2  = 111: Use a prescaler of 1024 (p119)
   TCCR2 = bits_value(CS22) | bits_value(CS21) | bits_value(CS20);
   // With a prescaler of 1024 this timer counts at 15.625 kHz,
   // to get a 100 Hz clock we need to count 157 times (~ 99.5 Hz)
