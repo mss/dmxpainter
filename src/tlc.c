@@ -91,11 +91,14 @@ void tlc_init(void)
   // Do this setup before enabling the output (p86).
 
   // Timer 1 is for our GSCLK:  We refresh with a GS cycle of
-  // about 100 Hz (cf. Timer 2), for each full cycle we need to
-  // clock the PWM 4096 times but have to consider the time it
-  // takes to shift out the data.
-  // We need about 38 clocks to get 4096 cycles at 100 Hz.
-  // FIXME: No we don't.
+  // about 100 Hz (cf. Timer 2), ie. each 10 ms.  For each full 
+  // cycle we needed to clock the PWM 4096 times which would be 
+  // a count of about 39 times between the pules:
+  //   n = 16 MHz / (4096 * 100 Hz) = 39.0625
+  // But we have to consider the time it takes to shift out the data
+  // so we don't have 10 ms for 4096 pulses, so we've got to speed 
+  // up, ie. count less clocks.  The count is adapted on demand later
+  // on, we'll initialize it with a reasonable default.
   mcu_set_timer1_ic(38);
   // Duty cycle as short as possible (see COM1A below).
   mcu_set_timer1_ocma(1);
@@ -120,8 +123,9 @@ void tlc_init(void)
         | bits_value(CS20);
   // With a prescaler of 1024 this timer counts at 15.625 kHz,
   // to get a 100 Hz clock we need to count 157 times (~ 99.5 Hz)
-  // and refresh after that:
-  // n = ceil((16 MHz / 1024) / 100 Hz)
+  // and refresh after that (that equals to 4 PWM pulses when
+  // ignoring the shifting time).
+  //   n = (16 MHz / 1024) / 100 Hz = 156.25
   mcu_set_timer2_ocm(156);
 
   // All these pins write to the painter.
