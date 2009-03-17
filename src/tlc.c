@@ -144,7 +144,6 @@ void tlc_exec(void)
 {
   // If enabled, shift out DC once.
   #ifdef TLC_DC_ONCE 
-    mcu_debug_on();
     send_dc_data();
     clock_xlat();
   #endif
