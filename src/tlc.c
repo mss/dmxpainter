@@ -30,15 +30,15 @@ static volatile uint8_t shifting_;
 /*********************************************************************/
 /* Declaration of private functions.                                 */
 
+static void send_dc_data(void);
+static void send_gs_data(void);
+
 static void clock_xlat(void);
 static void clock_sclk(void);
 static void set_blnk_on(void);
 static void set_blnk_off(void);
 static void set_vprg_gs_mode(void);
 static void set_vprg_dc_mode(void);
-
-static void send_dc_data(void);
-static void send_gs_data(void);
 
 
 /*********************************************************************/
@@ -186,42 +186,6 @@ void tlc_update(void)
 /*********************************************************************/
 /* Implementation of private functions.                              */
 
-// XLAT pulse to apply data to internal register.
-static void clock_xlat(void)
-{
-  pin_on(PIN_TLC_XLAT);
-  pin_off(PIN_TLC_XLAT);
-}
-
-// SCLK pulse to clock in serial data from SIN.
-static void clock_sclk(void)
-{
-  pin_on(PIN_TLC_SCLK);
-  pin_off(PIN_TLC_SCLK);
-}
-
-static void set_blnk_on(void)
-{
-  pin_on(PIN_TLC_BLNK);
-}
-
-static void set_blnk_off(void)
-{
-  pin_off(PIN_TLC_BLNK);
-}
-
-static void set_vprg_gs_mode(void)
-{
-  pin_off(PIN_TLC_VPRG);
-}
-
-static void set_vprg_dc_mode(void)
-{
-  pin_on(PIN_TLC_VPRG);
-}
-
-/*********************************************************************/
-
 static void shift8(uint8_t byte)
 {
   // Shift out all eight bits.
@@ -253,6 +217,7 @@ static void send_gs_data(void)
 {
   // Set VPRG to GS mode.
   set_vprg_gs_mode();
+
   // Because the TLCs are daisy-chained, we have to shift out the RGB data
   // starting at the end.  Each painter has 3 TLCs (with 16 channels each), 
   // for the colors red, green, blue.  So we've got to shift out the 16 blue
@@ -332,6 +297,43 @@ static void send_dc_data(void)
     } while (rgb != -1);
     painter--;
   } while (painter != 0);
+}
+
+/*********************************************************************/
+
+
+// XLAT pulse to apply data to internal register.
+static void clock_xlat(void)
+{
+  pin_on(PIN_TLC_XLAT);
+  pin_off(PIN_TLC_XLAT);
+}
+
+// SCLK pulse to clock in serial data from SIN.
+static void clock_sclk(void)
+{
+  pin_on(PIN_TLC_SCLK);
+  pin_off(PIN_TLC_SCLK);
+}
+
+static void set_blnk_on(void)
+{
+  pin_on(PIN_TLC_BLNK);
+}
+
+static void set_blnk_off(void)
+{
+  pin_off(PIN_TLC_BLNK);
+}
+
+static void set_vprg_gs_mode(void)
+{
+  pin_off(PIN_TLC_VPRG);
+}
+
+static void set_vprg_dc_mode(void)
+{
+  pin_on(PIN_TLC_VPRG);
 }
 
 /*********************************************************************/
