@@ -24,7 +24,7 @@
 /**
  * Flag to indicate that data is currently shifted out.
  */
-static volatile uint8_t data_shifting_;
+static volatile uint8_t shifting_;
 
 
 /*********************************************************************/
@@ -32,7 +32,6 @@ static volatile uint8_t data_shifting_;
 
 static void start_gscycle(void);
 
-static void set_shifting_off(void);
 static void clock_xlat(void);
 static void clock_sclk(void);
 static void set_blnk_on(void);
@@ -73,7 +72,7 @@ void tlc_int_timer2_ocm(void)
   mcu_int_timer2_ocm_disable();
 
   // Wait for next DMX packet.
-  set_shifting_off();
+  shifting_ = 0;
 }
 
 
@@ -160,7 +159,7 @@ void tlc_update(void)
   //       XLAT when cycle is done?
 
   // Don't send anything if PWM is still active.
-  if (data_shifting_) return;
+  if (shifting_) return;
 
   // Restart and enable 100 Hz-timeout timer now so
   // it includes the time we need to shift out data.
@@ -187,11 +186,6 @@ void tlc_update(void)
 
 /*********************************************************************/
 /* Implementation of private functions.                              */
-
-static void set_shifting_off(void)
-{
-  data_shifting_ = 0;
-}
 
 // XLAT pulse to apply data to internal register.
 static void clock_xlat(void)
@@ -231,7 +225,7 @@ static void set_vprg_dc_mode(void)
 
 static void start_gscycle(void)
 {
-  data_shifting_ = 1;
+  shifting_ = 1;
   // Start counter with next GS pulse.
   mcu_int_timer1_ocma_enable();
 }
