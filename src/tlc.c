@@ -217,6 +217,7 @@ static void shift8(uint8_t byte)
 
 static void shift12(uint8_t byte)
 {
+  // TODO: Use LUT
   // The data in the upper 8 bits.
   shift8(byte);
 
