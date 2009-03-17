@@ -14,16 +14,23 @@
   ((uint8_t)b0 << 0) | \
   0 )
 
+
+// Set and clear a single bit.
+#define bits_on(var, bit)  bits_mask_on( var, bits_value(bit))
+#define bits_off(var, bit) bits_mask_off(var, bits_value(bit))
+
+// Get a certain bit.
+#define bits_get(var, bit) bits_get_mask(var, bits_value(bit))
+
 // Set and clear bits based on a mask.
 // Hmmm... why don't we have to take care of
 // http://www.nongnu.org/avr-libc/user-manual/FAQ.html#faq_intpromote
 #define bits_mask_on(var, mask)  (var |= (mask))
 #define bits_mask_off(var, mask) (var &= ~(mask))
 
+// Get bits based on mask.
+#define bits_get_mask(var, mask) (var & (mask))
+
 // A nicer name for a useful macor.
 #define bits_value(v) _BV(v)
 #define bits_value_indexed(v, i) bits_value(v ## i)
-
-// Set and clear a single bit.
-#define bits_on(var, bit)  bits_mask_on( var, bits_value(bit))
-#define bits_off(var, bit) bits_mask_off(var, bits_value(bit))
