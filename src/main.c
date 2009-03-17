@@ -7,6 +7,8 @@
 #include "dmx.h"
 #include "tlc.h"
 
+#include <avr/delay.h>
+
 
 // We require GCC 4.x for inlining and stuff.
 // http://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html
@@ -59,7 +61,11 @@ static inline void main_exec(void)
 {
   // Signal that we're running.
   pin_out(PIN_LED_ON);
-  pin_on(PIN_LED_ON);
+  pin_on( PIN_LED_ON);
+  _delay_ms(200);
+  pin_off(PIN_LED_ON);
+  _delay_ms(200);
+  pin_on (PIN_LED_ON);
 
   // Start TLC.
   tlc_exec();
@@ -77,6 +83,7 @@ static inline void main_loop(void)
   while (1) {
     // FIXME
     // TODO: Don't store more data than necessary.
+    dmx_update();
     tlc_update();
   }
 }

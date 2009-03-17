@@ -243,6 +243,11 @@ void dmx_exec(void)
   enable_trigger();
 }
 
+void dmx_update(void)
+{
+  mcu_debug_set(error_);
+}
+
 
 /*********************************************************************/
 /* Implementation of private functions.                              */
