@@ -20,7 +20,12 @@ enum state {
 /**
  * The current state of the DMX state machine.
  */
-static volatile enum state state_;
+#ifndef REG_DMX_STATE
+  static volatile enum state state_;
+#else
+  #define state_ REG_DMX_STATE
+#endif
+
 /**
  * Index of current DMX frame (between 0 and 512).
  */
@@ -201,6 +206,10 @@ end: {
 
 void dmx_init(void)
 {
+  // Initialize state (register), might be needed (p20) and 
+  // doesn't hurt.
+  state_ = STATE_IDLE;
+
   // Configure both pins as input.
   pin_in(PIN_DMX_INT);
   pin_in(PIN_DMX_RXD);

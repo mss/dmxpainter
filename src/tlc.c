@@ -21,10 +21,20 @@
 /*********************************************************************/
 /* Declaration of private global variables.                          */
 
+enum status_bits {
+  STATUS_SHIFTING_BIT = 0,
+  STATUS_BUFFERD_BIT  = 1
+};
+
 /**
- * Flag to indicate that data is currently shifted out.
+ * Global TLC status.
  */
-static volatile uint8_t shifting_;
+#ifndef REG_TLC_STATUS
+  static volatile uint8_t status_;
+#else
+  #define status_ REG_TLC_STATUS
+#endif
+
 
 
 /*********************************************************************/
@@ -40,6 +50,9 @@ static void set_blnk_off(void);
 static void set_vprg_gs_mode(void);
 static void set_vprg_dc_mode(void);
 
+static void set_status_shifting_on(void);
+static void set_status_shifting_off(void);
+static int  get_status_shifting(void);
 
 /*********************************************************************/
 /* Implementation of public interrupts.                              */
@@ -70,7 +83,7 @@ void tlc_int_timer2_ocm(void)
   mcu_int_timer2_ocm_disable();
 
   // Wait for next DMX packet.
-  shifting_ = 0;
+  set_status_shifting_off();
 }
 
 
@@ -79,6 +92,10 @@ void tlc_int_timer2_ocm(void)
 
 void tlc_init(void)
 {
+  // Initialize status (register), might be needed (p20) and 
+  // doesn't hurt.
+  status_ = 0x00;
+
   // We have to use the 16-bit timer for the GSCLK and the 8-bit
   // timer for the timeout even though it would be better the other
   // way round:  We need the OC2 pin for SPI and thus can generate 
@@ -156,8 +173,8 @@ void tlc_update(void)
   //       XLAT when cycle is done?
 
   // Don't send anything if PWM is still active.
-  if (shifting_) return;
-  shifting_ = 1;
+  if (get_status_shifting()) return;
+  set_status_shifting_on();
 
   // Restart and enable 100 Hz-timeout timer now so
   // it includes the time we need to shift out data.
@@ -333,6 +350,23 @@ static void set_vprg_gs_mode(void)
 static void set_vprg_dc_mode(void)
 {
   pin_on(PIN_TLC_VPRG);
+}
+
+/*********************************************************************/
+
+static void set_status_shifting_on(void)
+{
+  bits_on(status_, STATUS_SHIFTING_BIT);
+}
+
+static void set_status_shifting_off(void)
+{
+  bits_off(status_, STATUS_SHIFTING_BIT);
+}
+
+static int get_status_shifting(void)
+{
+  return bits_get(status_, STATUS_SHIFTING_BIT);
 }
 
 /*********************************************************************/

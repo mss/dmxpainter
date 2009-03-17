@@ -4,6 +4,9 @@
 #define N_PAINTER 8
 
 #define TLC_DC_ONCE 1
+#define TLC_USE_REG 1
+
+#define DMX_USE_REG 1
 
 
 // MCU setup
@@ -20,6 +23,8 @@
 
 #define PIN_LED_ON    PIN_3
 
+#define PIN_DEBUG     PIN_14
+
 #define INT_TIMER1_COMPA tlc_int_timer1_ocma
 #define INT_TIMER2_COMP  tlc_int_timer2_ocm
 
@@ -27,8 +32,9 @@
 #define INT_INT0         dmx_int_ext_edge
 #define INT_USART_RXC    dmx_int_usart_rxc
 
-#define PIN_DEBUG     PIN_14
-#define REG_DEBUG     EEARH
+#define REG_DEBUG_FLAG EEARH
+#define REG_TLC_STATUS EEARL
+#define REG_DMX_STATE  EEDR
 
 
 // Defaults
@@ -41,11 +47,17 @@
 #if TLC_DC_ONCE == 0
   #undef TLC_DC_ONCE
 #endif
+#if TLC_USE_REG == 0
+  #undef REG_TLC_STATUS
+#endif
+
+#if DMX_USE_REG == 0
+  #undef REG_DMX_STATUS
+#endif
 
 #ifdef NDEBUG
+  #undef DEBUG
   #undef PIN_DEBUG
 #else
-  #ifndef DEBUG
-    #define DEBUG
-  #endif
+  #define DEBUG
 #endif

@@ -33,9 +33,9 @@
 
 
 #ifdef PIN_DEBUG
-#define mcu_init() pin_out(PIN_DEBUG)
-#ifdef REG_DEBUG
-#define mcu_debug__ REG_DEBUG
+#define mcu_init() do { pin_out(PIN_DEBUG); mcu_debug__ = 0; } while (0)
+#ifdef REG_DEBUG_FLAG
+#define mcu_debug__ REG_DEBUG_FLAG
 #else
 volatile uint8_t mcu_debug__;
 #endif
