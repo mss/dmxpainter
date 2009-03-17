@@ -30,8 +30,6 @@ static volatile uint8_t shifting_;
 /*********************************************************************/
 /* Declaration of private functions.                                 */
 
-static void start_gscycle(void);
-
 static void clock_xlat(void);
 static void clock_sclk(void);
 static void set_blnk_on(void);
@@ -160,6 +158,7 @@ void tlc_update(void)
 
   // Don't send anything if PWM is still active.
   if (shifting_) return;
+  shifting_ = 1;
 
   // Restart and enable 100 Hz-timeout timer now so
   // it includes the time we need to shift out data.
@@ -179,8 +178,8 @@ void tlc_update(void)
   // A final SCLK to notify 
   clock_sclk();
 
-  // Start PWM and continue in background...
-  start_gscycle();
+  // Start PWM with next GS pulse and continue in background...
+  mcu_int_timer1_ocma_enable();
 }
 
 
@@ -219,15 +218,6 @@ static void set_vprg_gs_mode(void)
 static void set_vprg_dc_mode(void)
 {
   pin_on(PIN_TLC_VPRG);
-}
-
-/*********************************************************************/
-
-static void start_gscycle(void)
-{
-  shifting_ = 1;
-  // Start counter with next GS pulse.
-  mcu_int_timer1_ocma_enable();
 }
 
 /*********************************************************************/
