@@ -1,9 +1,12 @@
 #pragma once
 
-#ifndef N_PAINTER
+// Settings
 #define N_PAINTER 8
-#endif
 
+#define TLC_DC_ONCE 1
+
+
+// MCU setup
 #define PIN_TLC_GSCK  PIN_15
 #define PIN_TLC_SCLK  PIN_28
 #define PIN_TLC_XLAT  PIN_27
@@ -26,3 +29,23 @@
 
 #define PIN_DEBUG     PIN_14
 #define REG_DEBUG     EEARH
+
+
+// Defaults
+#ifndef N_PAINTER
+  #define N_PAINTER 8
+#elif (N_PAINTER < 1) || (N_PAINTER > 10)
+  #error This will not work.
+#endif
+
+#if TLC_DC_ONCE == 0
+  #undef TLC_DC_ONCE
+#endif
+
+#ifdef NDEBUG
+  #undef PIN_DEBUG
+#else
+  #ifndef DEBUG
+    #define DEBUG
+  #endif
+#endif

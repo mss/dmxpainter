@@ -17,8 +17,6 @@
 
 #define TLC_N_CHANNELS (N_PAINTER * TLC_N_CHANNELS_PER_PAINTER)
 
-#define TLC_DC_ONCE
-
 
 /*********************************************************************/
 /* Declaration of private global variables.                          */
@@ -148,7 +146,8 @@ void tlc_init(void)
 void tlc_exec(void)
 {
   // If enabled, shift out DC once.
-  #ifdef TLC_DC_ONCE
+  #ifdef TLC_DC_ONCE 
+    mcu_debug_on();
     send_dc_data();
     clock_xlat();
   #endif
