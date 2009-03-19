@@ -33,18 +33,18 @@
 
 
 #ifdef PIN_DEBUG
-#define mcu_init() do { pin_out(PIN_DEBUG); mcu_debug__ = 0; } while (0)
-#ifdef REG_DEBUG_FLAG
-#define mcu_debug__ REG_DEBUG_FLAG
+  #define mcu_init() do { pin_out(PIN_DEBUG); mcu_debug__ = 0; } while (0)
+  #ifndef REG_DEBUG_FLAG
+    volatile uint8_t mcu_debug__;
+  #else
+    #define mcu_debug__ REG_DEBUG_FLAG
+  #endif
+  #define mcu_debug_set(v) do { mcu_debug__ = v; if (v) { pin_on(PIN_DEBUG); } else { pin_off(PIN_DEBUG); } } while (0)
+  #define mcu_debug()      mcu_debug_set(~mcu_debug__)
 #else
-volatile uint8_t mcu_debug__;
-#endif
-#define mcu_debug_set(v) do { mcu_debug__ = v; if (v) { pin_on(PIN_DEBUG); } else { pin_off(PIN_DEBUG); } } while (0)
-#define mcu_debug()      mcu_debug_set(~mcu_debug__)
-#else
-#define mcu_init()
-#define mcu_debug_set(v)
-#define mcu_debug()      mcu_debug_set(0xFF)
+  #define mcu_init()
+  #define mcu_debug_set(v)
+  #define mcu_debug()      mcu_debug_set(0xFF)
 #endif
 #define mcu_debug_on()   mcu_debug_set(1)
 #define mcu_debug_off()  mcu_debug_set(0)
