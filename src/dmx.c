@@ -62,8 +62,12 @@ static void disable_usart(void);
 #define DMX_RESET_TIME   88
 #define DMX_BIT_TIME     4
 #define DMX_CHAR_TIME    (DMX_BIT_TIME * (8 + 3))
-#define DMX_CHAR_TIMEOUT (DMX_CHAR_TIME * 2)
 
+// FIXME, this is not enough.
+#define DMX_CHAR_TIMEOUT 127 //(DMX_CHAR_TIME * 2)
+#if DMX_CHAR_TIMEOUT > 127
+  #error DMX_CHAR_TIMEOUT out of range
+#endif
 
 /*********************************************************************/
 /* Implementation of public interrupts.                              */
@@ -163,7 +167,7 @@ void dmx_int_usart_rxc(void)
       }
 
       // Clear error flag.
-      error_ = 0; 
+      error_ = 0;
 
       // Switch to data storage.
       index_ = 0;
@@ -254,8 +258,8 @@ void dmx_update(void)
 
 static void enable_timer(int8_t us)
 {
-  // Prepare timer counter.
-  timer_ = 0xFF - 2 * us;
+  // Prepare timer counter, considering the prescaler.
+  timer_ = 0xFF - (16 / 8) * us;
   reset_timer();
 
   // Enable timer, use a frequency prescaler of 8 (p72).
