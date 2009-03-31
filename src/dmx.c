@@ -72,6 +72,10 @@ static void disable_usart(void);
 /*********************************************************************/
 /* Implementation of public interrupts.                              */
 
+/**
+ * ISR to handle an external interrupt (any edge) and act as an 
+ * input to the state machine.
+ */
 void dmx_int_ext_edge(void)
 {
   switch (state_) {
@@ -111,6 +115,10 @@ err: {
   }
 }
 
+/**
+ * ISR to handle an overflow of a timer and act as an 
+ * input to the state machine.
+ */
 void dmx_int_timer_ovf(void)
 {
   // Disable this interrupt.
@@ -141,6 +149,10 @@ err: {
   }
 }
 
+/**
+ * ISR to handle incoming serial data and act both as an 
+ * input to the state machine and store the new data.
+ */
 void dmx_int_usart_rxc(void)
 {
   // Read USART data (p146).
@@ -208,6 +220,10 @@ end: {
 /*********************************************************************/
 /* Implementation of public functions.                               */
 
+/**
+ * Initializes the peripherals (pins, timer, USART) used by the
+ * DMX parser.
+ */
 void dmx_init(void)
 {
   // Initialize state (register), might be needed (p20) and 
@@ -241,12 +257,18 @@ void dmx_init(void)
   disable_trigger();
 }
 
+/**
+ * Starts parsing of DMX data by enabling the external interrupt.
+ */
 void dmx_exec(void)
 {
   // Just enable the trigger for the pin.
   enable_trigger();
 }
 
+/**
+ * Called by the main loop
+ */
 void dmx_update(void)
 {
   mcu_debug_set(error_);

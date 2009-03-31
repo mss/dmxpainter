@@ -3,13 +3,14 @@
 /*********************************************************************/
 /* Declaration of public global variables.                           */
 
-/*
+/**
  * All channel greyscale data is initialized to zero.
- * TODO: Size should be based on N_PAINTER
+ * TODO: Size should be based on N_PAINTER but got to fix the dmx 
+ * code first.
  */
 volatile char buf_gs__[512];
 
-/*
+/**
  * One dot correction for everything.
  */
 #define BUF_DC_MAX 0x3F
